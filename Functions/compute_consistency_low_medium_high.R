@@ -103,7 +103,8 @@ fig_consis_rate_box_LMH = ggplot(data = consis_3Week_LMH,
   theme(text = element_text(size = 10),
         axis.ticks.x = element_blank(),
         axis.text.x = element_blank()) +
-  labs(title = "C) 3-week community risk level consistency rates \n with current system of three risk levels",
+  guides(fill=guide_legend(title="Community Level"))+
+  labs(title = "C) Distributions of 3-week community risk level consistency rates",
        y = "Consistency Rate",x = NULL) +
   scale_y_continuous(limits=c(0,1),
                                 breaks=c(0, .25, .50, 0.75, 1),

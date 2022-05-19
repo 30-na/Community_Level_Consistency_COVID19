@@ -11,9 +11,87 @@ library(xtable)
 load("Result/consistency_low_medium_high.Rda")
 load("Result/consistency_low_medium_high_modified_threshold.Rda")
 load("Result/consistency_merged_high_medium.Rda")
-load("Result/consistency_merged_high_medium_modified_threshold.Rda")
 load("Result/consistency_merged_low_medium.Rda")
-load("Result/consistency_merged_low_medium_modified_threshold.Rda")
+
+
+
+##### Combine and summarise all data ####
+# original CDC
+consist_result_LMH = consis_3Week_LMH %>%
+  left_join(consis_3Week_total_LMH,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Original CDC") %>%
+  select(date,
+         category,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+# low and medium merged
+consist_result_LM = consis_3Week_LM %>%
+  left_join(consis_3Week_total_LM,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Low and medium merged") %>%
+  select(date,
+         category,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+# high and medium merged
+consist_result_MH = consis_3Week_MH %>%
+  left_join(consis_3Week_total_MH,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "High and medium merged") %>%
+  select(date,
+         category,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+# Modified threshold with low medium and high risk level
+consist_result_LMH_MT = consis_3Week_LMH_MT %>%
+  left_join(consis_3Week_total_LMH_MT,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Modified Threshold (LMH)") %>%
+  select(date,
+         category,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+#combine all data
+consis_result = rbind(consist_result_LMH,
+                      consist_result_LM,
+                      consist_result_MH,
+                      consist_result_LMH_MT)
+
+
+# summarise the result
+consis_result_summaries = consis_result %>%
+  group_by(category, community_level) %>%
+  summarise(mean_total = mean(consisRate_total),
+            median_total = median(consisRate_total),
+            upper_quantile_total = quantile(consisRate_total, probs = .75),
+            lower_quantile_total = quantile(consisRate_total, probs = .25),
+            
+            mean = mean(consisRate),
+            median = median(consisRate),
+            upper_quantile = quantile(consisRate, probs = .75),
+            lower_quantile = quantile(consisRate, probs = .25))
+
+  
+# Making latex table from summaries
+table1 = xtable(consis_result_summaries, digits = 3)
+print(table1, include.rownames = FALSE)
+
 
 
 ##### Box Plots ##### 
@@ -27,10 +105,12 @@ consist_result_LM = data.frame(consisRate = consis_3Week_LM$consisRate,
 consist_result_LMH = data.frame(consisRate = consis_3Week_LMH$consisRate,
                                               Category = "Low Medium High")
 
-
+consist_result_LMH_MT = data.frame(consisRate = consis_3Week_LMH_MT$consisRate,
+                                                   Category = "Low Medium High")
 consis_result = rbind(consist_result_HM,
                       consist_result_LM,
-                      consist_result_LMH) %>%
+                      consist_result_LMH,
+                      consist_result_LMH_MT) %>%
     mutate(Category = factor(x = Category,
                               levels = c("Low Medium High",
                                          "Low Medium",
@@ -61,11 +141,11 @@ ggsave("Result/fig_consis_merge_box.jpg",
 
 
 # box plot for 3 different category (modified threshold)
-consist_result_HM_modified_threshold = data.frame(consisRate = consis_3Week_MH_modified_threshold$consisRate,
-                                               Category = "Low Medium")
-
-consist_result_LM_modified_threshold = data.frame(consisRate = consis_3Week_LM_modified_threshold$consisRate,
-                                              Category = "Medium High")
+# consist_result_HM_modified_threshold = data.frame(consisRate = consis_3Week_MH_modified_threshold$consisRate,
+#                                                Category = "Low Medium")
+# 
+# consist_result_LM_modified_threshold = data.frame(consisRate = consis_3Week_LM_modified_threshold$consisRate,
+#                                               Category = "Medium High")
 
 consist_result_LMH_modified_threshold = data.frame(consisRate = consis_3Week_LMH_modified_threshold$consisRate,
                                             Category = "Low Medium High")
