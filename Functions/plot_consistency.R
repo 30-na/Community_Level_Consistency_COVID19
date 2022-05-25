@@ -3,275 +3,254 @@
 library(dplyr)
 library(usdata)
 library(ggplot2)
+library(ggpubr)
 library(tidyr)
 library(gridExtra)
 library(xtable)
+library(tidycensus)
 
 
-load("Result/consistency_low_medium_high.Rda")
-load("Result/consistency_low_medium_high_modified_threshold.Rda")
-load("Result/consistency_merged_high_medium.Rda")
-load("Result/consistency_merged_low_medium.Rda")
+load("Result/CDC_community_level_county_computed_low_medium_high.RDA")
+
+load("Result/consistency_2week_low_medium_high.Rda")
+load("Result/consistency_2week_low_medium_high_modified_threshold.Rda")
+load("Result/consistency_2week_merged_high_medium.Rda")
+load("Result/consistency_2week_merged_low_medium.Rda")
+
+load("Result/consistency_3week_low_medium_high.Rda")
+load("Result/consistency_3week_low_medium_high_modified_threshold.Rda")
+load("Result/consistency_3week_merged_high_medium.Rda")
+load("Result/consistency_3week_merged_low_medium.Rda")
+
+load("Result/consistency_4week_low_medium_high.Rda")
+load("Result/consistency_4week_low_medium_high_modified_threshold.Rda")
+load("Result/consistency_4week_merged_high_medium.Rda")
+load("Result/consistency_4week_merged_low_medium.Rda")
 
 
-
-##### Combine and summarise all data ####
+##### 3week ####
+# Combine all data
 # original CDC
-consist_result_LMH = consis_3Week_LMH %>%
-  left_join(consis_3Week_total_LMH,
+consist_3week_result_LMH = consis_3week_LMH %>%
+  left_join(consis_3week_total_LMH,
             by = "date",
             suffix = c("", "_total")) %>%
   mutate(category = "Original CDC") %>%
+  mutate(interval = "3week") %>%
   select(date,
          category,
+         interval,
          community_level,
          consisRate,
          consisRate_total)
 
 
 # low and medium merged
-consist_result_LM = consis_3Week_LM %>%
-  left_join(consis_3Week_total_LM,
+consist_3week_result_LM = consis_3week_LM %>%
+  left_join(consis_3week_total_LM,
             by = "date",
             suffix = c("", "_total")) %>%
   mutate(category = "Low and medium merged") %>%
+  mutate(interval = "3week") %>%
   select(date,
          category,
+         interval,
          community_level,
          consisRate,
          consisRate_total)
 
 
 # high and medium merged
-consist_result_MH = consis_3Week_MH %>%
-  left_join(consis_3Week_total_MH,
+consist_3week_result_MH = consis_3week_MH %>%
+  left_join(consis_3week_total_MH,
             by = "date",
             suffix = c("", "_total")) %>%
   mutate(category = "High and medium merged") %>%
+  mutate(interval = "3week") %>%
   select(date,
          category,
+         interval,
          community_level,
          consisRate,
          consisRate_total)
 
 
 # Modified threshold with low medium and high risk level
-consist_result_LMH_MT = consis_3Week_LMH_MT %>%
-  left_join(consis_3Week_total_LMH_MT,
+consist_3week_result_LMH_MT = consis_3week_LMH_MT %>%
+  left_join(consis_3week_total_LMH_MT,
             by = "date",
             suffix = c("", "_total")) %>%
   mutate(category = "Modified Threshold (LMH)") %>%
+  mutate(interval = "3week") %>%
   select(date,
          category,
+         interval,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+##### 4week ####
+# original CDC
+consist_4week_result_LMH = consis_4week_LMH %>%
+  left_join(consis_4week_total_LMH,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Original CDC") %>%
+  mutate(interval = "4week") %>%
+  select(date,
+         category,
+         interval,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+# low and medium merged
+consist_4week_result_LM = consis_4week_LM %>%
+  left_join(consis_4week_total_LM,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Low and medium merged") %>%
+  mutate(interval = "4week") %>%
+  select(date,
+         category,
+         interval,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+# high and medium merged
+consist_4week_result_MH = consis_4week_MH %>%
+  left_join(consis_4week_total_MH,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "High and medium merged") %>%
+  mutate(interval = "4week") %>%
+  select(date,
+         category,
+         interval,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+# Modified threshold with low medium and high risk level
+consist_4week_result_LMH_MT = consis_4week_LMH_MT %>%
+  left_join(consis_4week_total_LMH_MT,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Modified Threshold (LMH)") %>%
+  mutate(interval = "4week") %>%
+  select(date,
+         category,
+         interval,
          community_level,
          consisRate,
          consisRate_total)
 
 #combine all data
-consis_result = rbind(consist_result_LMH,
-                      consist_result_LM,
-                      consist_result_MH,
-                      consist_result_LMH_MT)
+consis_result = rbind(consist_3week_result_LMH,
+                      consist_3week_result_LM,
+                      consist_3week_result_MH,
+                      consist_3week_result_LMH_MT,
+                      consist_4week_result_LMH,
+                      consist_4week_result_LM,
+                      consist_4week_result_MH,
+                      consist_4week_result_LMH_MT)
+
+##### 2week ####
+# original CDC
+consist_2week_result_LMH = consis_2week_LMH %>%
+  left_join(consis_2week_total_LMH,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Original CDC") %>%
+  mutate(interval = "2week") %>%
+  select(date,
+         category,
+         interval,
+         community_level,
+         consisRate,
+         consisRate_total)
 
 
-# summarise the result
+# low and medium merged
+consist_2week_result_LM = consis_2week_LM %>%
+  left_join(consis_2week_total_LM,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Low and medium merged") %>%
+  mutate(interval = "2week") %>%
+  select(date,
+         category,
+         interval,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+# high and medium merged
+consist_2week_result_MH = consis_2week_MH %>%
+  left_join(consis_2week_total_MH,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "High and medium merged") %>%
+  mutate(interval = "2week") %>%
+  select(date,
+         category,
+         interval,
+         community_level,
+         consisRate,
+         consisRate_total)
+
+
+# Modified threshold with low medium and high risk level
+consist_2week_result_LMH_MT = consis_2week_LMH_MT %>%
+  left_join(consis_2week_total_LMH_MT,
+            by = "date",
+            suffix = c("", "_total")) %>%
+  mutate(category = "Modified Threshold (LMH)") %>%
+  mutate(interval = "2week") %>%
+  select(date,
+         category,
+         interval,
+         community_level,
+         consisRate,
+         consisRate_total)
+##### combine and summarize #####
+#combine all data
+consis_result = rbind(consist_3week_result_LMH,
+                      consist_3week_result_LM,
+                      consist_3week_result_MH,
+                      consist_3week_result_LMH_MT,
+                      consist_4week_result_LMH,
+                      consist_4week_result_LM,
+                      consist_4week_result_MH,
+                      consist_4week_result_LMH_MT,
+                      consist_2week_result_LMH,
+                      consist_2week_result_LM,
+                      consist_2week_result_MH,
+                      consist_2week_result_LMH_MT)
+
+
+# summarize the result
 consis_result_summaries = consis_result %>%
-  group_by(category, community_level) %>%
-  summarise(mean_total = mean(consisRate_total),
-            median_total = median(consisRate_total),
-            upper_quantile_total = quantile(consisRate_total, probs = .75),
-            lower_quantile_total = quantile(consisRate_total, probs = .25),
-            
-            mean = mean(consisRate),
-            median = median(consisRate),
-            upper_quantile = quantile(consisRate, probs = .75),
-            lower_quantile = quantile(consisRate, probs = .25))
-
+  group_by(category, community_level, interval) %>%
+  summarise(
+    "Overall Lower IQR" = quantile(consisRate_total, probs = .25),
+    "Overall median" = median(consisRate_total),
+    "Overall Upper IQR" = quantile(consisRate_total, probs = .75),
+    "Lower IQR" = quantile(consisRate, probs = .25),
+    "median" = median(consisRate),
+    "Upper IQR" = quantile(consisRate, probs = .75)) %>%
+  rename("Community level" = community_level,
+         "Interval" = interval) %>%
+  arrange(Interval, category)
   
 # Making latex table from summaries
 table1 = xtable(consis_result_summaries, digits = 3)
-print(table1, include.rownames = FALSE)
-
-
-
-##### Box Plots ##### 
-# box plot for 3 different category
-consist_result_HM = data.frame(consisRate = consis_3Week_MH$consisRate,
-                                              Category = "Low Medium")
-
-consist_result_LM = data.frame(consisRate = consis_3Week_LM$consisRate,
-                                              Category = "Medium High")
-
-consist_result_LMH = data.frame(consisRate = consis_3Week_LMH$consisRate,
-                                              Category = "Low Medium High")
-
-consist_result_LMH_MT = data.frame(consisRate = consis_3Week_LMH_MT$consisRate,
-                                                   Category = "Low Medium High")
-consis_result = rbind(consist_result_HM,
-                      consist_result_LM,
-                      consist_result_LMH,
-                      consist_result_LMH_MT) %>%
-    mutate(Category = factor(x = Category,
-                              levels = c("Low Medium High",
-                                         "Low Medium",
-                                         "Medium High")))
-    
-
-fig_consis_merge_box = ggplot(data = consis_result, aes(x = Category,
-                                                        y = consisRate, fill = Category)) +
-    geom_boxplot(alpha=.4) +
-    scale_fill_manual(values = c("#2b8cbe", "#e34a33", "#fdbb84"))+
-    geom_jitter( alpha=.2, width = .015, size = 1)+
-    theme_classic()+
-    theme(text = element_text(size = 10),
-          axis.ticks.x = element_blank(),
-          axis.text.x = element_blank()) +
-    labs(title = "C) 3-week community risk level consistency rates",
-         y = "Consistency Rate",x = NULL) +
-  ylim(0, 1)
-  
-  
-    
-
-
-ggsave("Result/fig_consis_merge_box.jpg",
-       fig_consis_merge_box, 
-       height=4,width=3,scale=1.65)
-
-
-
-# box plot for 3 different category (modified threshold)
-# consist_result_HM_modified_threshold = data.frame(consisRate = consis_3Week_MH_modified_threshold$consisRate,
-#                                                Category = "Low Medium")
-# 
-# consist_result_LM_modified_threshold = data.frame(consisRate = consis_3Week_LM_modified_threshold$consisRate,
-#                                               Category = "Medium High")
-
-consist_result_LMH_modified_threshold = data.frame(consisRate = consis_3Week_LMH_modified_threshold$consisRate,
-                                            Category = "Low Medium High")
-
-
-consis_result_modified_threshold = rbind(consist_result_HM_modified_threshold,
-                      consist_result_LM_modified_threshold,
-                      consist_result_LMH_modified_threshold) %>%
-    mutate(Category = factor(x = Category,
-                             levels = c("Low Medium High",
-                                        "Low Medium",
-                                        "Medium High")))
-
-fig_consis_merge_box_modified_threshold = ggplot(data = consis_result_modified_threshold, aes(x = Category,
-                                                        y = consisRate, fill = Category)) +
-    geom_boxplot(alpha=.4) +
-    scale_fill_manual(values = c("#2b8cbe", "#e34a33", "#fdbb84"))+
-    geom_jitter( alpha=.2, width = .015, size = 1)+
-    theme_classic()+
-    theme(text = element_text(size = 18)) +
-    labs(y = "Consistency Rate")
-fig_consis_merge_box_modified_threshold
-
-ggsave("Result/fig_consis_merge_box_modified_threshold.jpg",
-       fig_consis_merge_box_modified_threshold, 
-       height=4,width=8,scale=1.65)
-
-
-##### Result Table #####
-mean_total = mean(consis_3Week_LMH_total$consisRate)
-mean_low = mean(filter(consis_3Week_LMH,
-                       community_level == "Low")$consisRate)
-mean_med = mean(filter(consis_3Week_LMH,
-                       community_level == "Medium")$consisRate)
-mean_high = mean(filter(consis_3Week_LMH,
-                        community_level == "High")$consisRate)
-
-result_table_original = data.frame("Category" = "Original CDC",
-                                   "Total Mean" = mean_total,
-                                   "Low Risk Mean" = mean_low,
-                                   "Medium Risk Mean" = mean_med,
-                                   "High Risk Mean" = mean_high)
-
-
-mean_total_MH = mean(consis_3Week_MH_total$consisRate)
-mean_low_MH = mean(filter(consis_3Week_MH,
-                       community_level == "Low")$consisRate)
-mean_med_MH = mean(filter(consis_3Week_MH,
-                       community_level == "Medium")$consisRate)
-mean_high_MH = mean(filter(consis_3Week_MH,
-                        community_level == "High")$consisRate)
-
-result_table_MH = data.frame("Category" = "High and medium combine",
-                                   "Total Mean" = mean_total_MH,
-                                   "Low Risk Mean" = mean_low_MH,
-                                   "Medium Risk Mean" = mean_med_MH,
-                                   "High Risk Mean" = mean_high_MH)
-
-mean_total_LM = mean(consis_3Week_LM_total$consisRate)
-mean_low_LM = mean(filter(consis_3Week_LM,
-                          community_level == "Low")$consisRate)
-mean_med_LM = mean(filter(consis_3Week_LM,
-                          community_level == "Medium")$consisRate)
-mean_high_LM = mean(filter(consis_3Week_LM,
-                           community_level == "High")$consisRate)
-
-result_table_LM = data.frame("Category" = "Low and medium combine",
-                             "Total Mean" = mean_total_LM,
-                             "Low Risk Mean" = mean_low_LM,
-                             "Medium Risk Mean" = mean_med_LM,
-                             "High Risk Mean" = mean_high_LM)
-
-
-# modified threshold
-mean_total_modified_threshold = mean(consis_3Week_LMH_total_modified_threshold$consisRate)
-mean_low_modified_threshold = mean(filter(consis_3Week_LMH_modified_threshold,
-                       community_level == "Low")$consisRate)
-mean_med_modified_threshold = mean(filter(consis_3Week_LMH_modified_threshold,
-                       community_level == "Medium")$consisRate)
-mean_high_modified_threshold = mean(filter(consis_3Week_LMH_modified_threshold,
-                        community_level == "High")$consisRate)
-
-result_table_modified_threshold = data.frame("Category" = "modified threshold",
-                                   "Total Mean" = mean_total_modified_threshold,
-                                   "Low Risk Mean" = mean_low_modified_threshold,
-                                   "Medium Risk Mean" = mean_med_modified_threshold,
-                                   "High Risk Mean" = mean_high_modified_threshold)
-
-
-mean_total_MH_modified_threshold = mean(consis_3Week_MH_total_modified_threshold$consisRate)
-mean_low_MH_modified_threshold = mean(filter(consis_3Week_MH_modified_threshold,
-                          community_level == "Low")$consisRate)
-mean_med_MH_modified_threshold = mean(filter(consis_3Week_MH_modified_threshold,
-                          community_level == "Medium")$consisRate)
-mean_high_MH_modified_threshold = mean(filter(consis_3Week_MH_modified_threshold,
-                           community_level == "High")$consisRate)
-
-result_table_MH_modified_threshold = data.frame("Category" = "High and medium combine (modified)",
-                             "Total Mean" = mean_total_MH_modified_threshold,
-                             "Low Risk Mean" = mean_low_MH_modified_threshold,
-                             "Medium Risk Mean" = mean_med_MH_modified_threshold,
-                             "High Risk Mean" = mean_high_MH_modified_threshold)
-
-mean_total_LM_modified_threshold = mean(consis_3Week_LM_total_modified_threshold$consisRate)
-mean_low_LM_modified_threshold = mean(filter(consis_3Week_LM_modified_threshold,
-                          community_level == "Low")$consisRate)
-mean_med_LM_modified_threshold = mean(filter(consis_3Week_LM_modified_threshold,
-                          community_level == "Medium")$consisRate)
-mean_high_LM_modified_threshold = mean(filter(consis_3Week_LM_modified_threshold,
-                           community_level == "High")$consisRate)
-
-result_table_LM_modified_threshold = data.frame("Category" = "Low and medium combine (modified)",
-                             "Total Mean" = mean_total_LM_modified_threshold,
-                             "Low Risk Mean" = mean_low_LM_modified_threshold,
-                             "Medium Risk Mean" = mean_med_LM_modified_threshold,
-                             "High Risk Mean" = mean_high_LM_modified_threshold)
-
-consis_result_table = rbind(result_table_original,
-      result_table_MH,
-      result_table_LM,
-      result_table_modified_threshold,
-      result_table_MH_modified_threshold,
-      result_table_LM_modified_threshold)
-
-# Making latex table from summaries
-table1 = xtable(consis_result_table)
 print(table1, include.rownames = FALSE)
 
 
@@ -304,46 +283,196 @@ ggsave("Result/compare_consisRate_box.jpg",
 
 
 
-##### Figure 2 #####
-fig_compare_consisRate_line = grid.arrange(fig_consis_rate_line_LM,
-                                           fig_consis_rate_line_MH,
-                                           fig_consis_rate_line_LMH_MT,
-                                           fig_consis_rate_box_LM,
-                                           fig_consis_rate_box_MH,
-                                           fig_consis_rate_box_LMH_MT,
-                                           nrow = 3,
+##### 3week Figure 1 ####
+fig_consis_3week_line_LMH_MT = ggplot(data = consis_3week_LMH_MT,
+                                      aes(x = date,
+                                          y = consisRate,
+                                          color = community_level))+
+  geom_smooth(method = "lm",
+              formula = y ~ poly(x, 16),
+              se=FALSE,
+              size = 1.5)+
+  geom_point(alpha = .3)+
+  labs(title = "B) 3-week community risk level consistency rates with alternative \nthreshold for low risk level\n",
+       x = NULL,
+       y = "Consistency Rate")+
+  guides(fill=guide_legend(title="Community Level"))+
+  scale_color_manual(name = "Community Level",
+                     values = c("#e41a1c", "#dadd00", "#386cb0"))+
+  scale_y_continuous(limits=c(0,1),
+                     breaks=c(0, .25, .50, 0.75, 1),
+                     expand = c(0, 0))+
+  scale_x_date(date_labels = "(%b) %Y",
+               date_breaks = "180 days",
+               expand = c(0, 0))+
+  theme_classic()+
+  theme(text = element_text(size = 14))
+
+
+
+
+
+
+
+box_plot_compare =  consis_result %>%
+  filter(interval == "3week") %>% 
+  filter(category == "Original CDC" |
+           category == "Modified Threshold (LMH)")%>%
+  ungroup() %>%
+  dplyr::select(category, interval, community_level, consisRate)%>%
+  mutate(category = as.factor(category)) %>%
+  mutate(interval = as.factor(interval)) %>%
+  mutate(community_level = as.factor(community_level))
+  
+  fig_box_plot_compare = ggplot(box_plot_compare,
+         aes(x = category,
+             y = consisRate)) +
+  geom_boxplot(aes(fill = community_level), alpha=0.4)+ 
+  stat_compare_means(aes(group=category),
+                     method = "t.test")+
+  facet_wrap(~community_level)+
+  scale_fill_manual(values = c("#e41a1c", "#dadd00", "#386cb0"))+
+  geom_jitter( alpha=.2, width = .015, size = 1)+
+  theme_classic() +
+  theme(text = element_text(size = 14),
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(fill=guide_legend(title="Community Level"))+
+  labs(title = "C) Compare current CDC consistency rate with \nalternative threshold consistency rate",
+       y = "Consistency Rate",x = NULL) +
+  scale_y_continuous(limits=c(0,1),
+                     breaks=c(0, .25, .50, 0.75, 1),
+                     expand = c(0, .04))+
+  scale_x_discrete() 
+
+
+
+fig01_compare_consisRate_3week_mix = grid.arrange(fig_consis_3week_line_LMH,
+                                                  fig_consis_3week_line_LMH_MT,
+                                                  fig_box_plot_compare,
+                                                  ncol = 4,
+                                                  nrow = 2,
+                                                  layout_matrix = rbind(c(1,1,3,3),
+                                                                c(2,2,3,3)))
+
+
+ggsave("Result/Fig01_compare_consisRate_3week.jpg",
+       fig01_compare_consisRate_3week_mix, 
+       height=4,width=10,scale=1.65)
+
+##### 3week Figure 2 #####
+fig02_compare_consisRate_3week = grid.arrange(fig_consis_3week_line_LMH_MT,
+                                           fig_consis_3week_box_LMH_MT,
+                                           nrow = 1,
                                            ncol = 3,
-                                           layout_matrix = rbind(c(1,1,4),
-                                                                 c(2,2,5),
-                                                                 c(3,3,6)))
-
-ggsave("Result/compare_consisRate.jpg",
-       fig_compare_consisRate_line, 
-       height=6,width=8,scale=1.65)
+                                           layout_matrix = rbind(c(1,1,2)))
 
 
+ggsave("Result/Fig02_compare_consisRate_3week_LMH_MT.jpg",
+       fig02_compare_consisRate_3week, 
+       height=2,width=8,scale=1.65)
+
+##### 3week Figure 3 #####
+fig03_compare_consisRate_3week = grid.arrange(fig_consis_3week_line_LMH,
+                                              fig_consis_3week_box_LMH,
+                                              nrow = 1,
+                                              ncol = 3,
+                                              layout_matrix = rbind(c(1,1,2)))
 
 
-##### Figure 3 ####
+ggsave("Result/Fig03_compare_consisRate_3week_LMH.jpg",
+       fig03_compare_consisRate_3week, 
+       height=2,width=8,scale=1.65)
+
+
+##### 4week Figure 1 ####
+fig_compare_consisRate_4week_mix_LMH = grid.arrange(fig_county_4week_proportion_line_LMH,
+                                                    fig_consis_4week_line_LMH,
+                                                    fig_consis_4week_box_LMH,
+                                                    ncol = 3,
+                                                    nrow = 2,
+                                                    layout_matrix = rbind(c(1,1,3),
+                                                                          c(2,2,3)))
+
+
+ggsave("Result/Fig01_compare_consisRate_LMH_4week.jpg",
+       fig_compare_consisRate_4week_mix_LMH, 
+       height=4,width=8,scale=1.65)
+
+##### 4week Figure 2 #####
+fig02_compare_consisRate_4week = grid.arrange(fig_consis_4week_line_LMH_MT,
+                                           fig_consis_4week_box_LMH_MT,
+                                           nrow = 1,
+                                           ncol = 3,
+                                           layout_matrix = rbind(c(1,1,2)))
+
+
+ggsave("Result/Fig02_compare_consisRate_4week_LMH_MT.jpg",
+       fig02_compare_consisRate_4week, 
+       height=2,width=8,scale=1.65)
+
+##### 4week Figure 3 #####
+fig03_compare_consisRate_4week = grid.arrange(fig_consis_4week_line_LMH,
+                                              fig_consis_4week_box_LMH,
+                                              nrow = 1,
+                                              ncol = 3,
+                                              layout_matrix = rbind(c(1,1,2)))
+
+
+ggsave("Result/Fig03_compare_consisRate_4week_LMH.jpg",
+       fig03_compare_consisRate_4week, 
+       height=2,width=8,scale=1.65)
+
+
+
+##### 2week Figure 1 ####
 fig_compare_consisRate_mix = grid.arrange(fig_county_proportion_line_LMH,
                                           fig_consis_rate_line_LMH,
                                           fig_consis_rate_box_LMH,
-                                           ncol = 3,
-                                           nrow = 2,
-                                           layout_matrix = rbind(c(1,1,3),
-                                                                 c(2,2,3)))
+                                          ncol = 3,
+                                          nrow = 2,
+                                          layout_matrix = rbind(c(1,1,3),
+                                                                c(2,2,3)))
+
 
 ggsave("Result/fig_compare_consisRate_mix.jpg",
        fig_compare_consisRate_mix, 
        height=4,width=8,scale=1.65)
 
-################################## MAP #####################################
+##### 2week Figure 2 #####
+fig02_compare_consisRate_2week = grid.arrange(fig_consis_2week_line_LMH_MT,
+                                                 fig_consis_2week_box_LMH_MT,
+                                                 nrow = 1,
+                                                 ncol = 3,
+                                                 layout_matrix = rbind(c(1,1,2)))
+
+
+ggsave("Result/Fig02_compare_consisRate_2week_LMH_MT.jpg",
+       fig02_compare_consisRate_2week, 
+       height=2,width=8,scale=1.65)
+
+
+
+##### 2week Figure 3 #####
+fig03_compare_consisRate_2week = grid.arrange(fig_consis_2week_line_LMH,
+                                              fig_consis_2week_box_LMH,
+                                              nrow = 1,
+                                              ncol = 3,
+                                              layout_matrix = rbind(c(1,1,2)))
+
+
+ggsave("Result/Fig03_compare_consisRate_2week_LMH.jpg",
+       fig03_compare_consisRate_2week, 
+       height=2,width=8,scale=1.65)
+
+
+
+##### MAP #####################################
 data(fips_codes)
 # days list
-days = unique(community_level_county_computed$date)
+days = unique(community_level_LMH$date)
 
 # the counties that have consistent data for all weeks in the time interval
-common_counties_df = community_level_county_computed %>%
+common_counties_df = community_level_LMH %>%
     group_by(state, fips_code)%>%
     count(fips_code)%>%
     filter(n == length(days))%>%
@@ -401,7 +530,7 @@ county_map = ggplot(data = us_county,
                  color = "black",
                  size = .3) +
     geom_polygon(data = common_fips_map,
-                 fill = "#fed98e",
+                 fill = "#386cb0",
                  alpha=.5)+
     geom_text(data=cnames, aes(long, lat, label = region), size=3)+
     coord_equal()+
