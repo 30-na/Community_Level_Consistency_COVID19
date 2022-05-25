@@ -16,13 +16,18 @@ load("Result/CDC_community_level_county.RDA")
 new_cases = CDC_community_risk_historical %>%
     select(date,
            fips_code,
-           new_case)
+           new_case) %>%
+    mutate(fips_code = as.numeric(fips_code))
 
 # set NA for new case less than zero
 new_cases[new_cases$new_case < 0, ]$new_case = NA
 
 
 # merge "newcase" and "Hospital Utilization" datasets
+
+hospital_utilization = hospital_utilization %>%
+    mutate(fips_code = as.numeric(fips_code))
+
 merged_newcase = merge(hospital_utilization,
                        new_cases,
                        by=c("date", "fips_code"))
@@ -33,7 +38,8 @@ county_pop = CDC_community_level_county %>%
     dplyr::filter(date_updated == "2022-03-24") %>%
     dplyr::select(county_fips, 
                   population) %>%
-    rename(fips_code = county_fips)
+    rename(fips_code = county_fips) %>%
+    mutate(fips_code = as.numeric(fips_code))
 
 # add counties population to dataset
 merged_data = merge(merged_newcase,
@@ -107,7 +113,7 @@ community_level_MH = community_level_county %>%
 save(community_level_MH,
      file="Result/CDC_community_level_county_computed_merged_high_medium.RDA")
 
-###################### LOW amd MEDIUM MERGED ###################
+###################### LOW and MEDIUM MERGED ###################
 community_level_county$community_level = NA
 community_level_county$community_level[low_index] = "Low + Medium"
 community_level_county$community_level[medium_index] = "Low + Medium"
