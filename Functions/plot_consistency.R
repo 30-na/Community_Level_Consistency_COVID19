@@ -255,35 +255,7 @@ print(table1, include.rownames = FALSE)
 
 
 
-##### Grid Arrange #####
-fig_facet_proportion_RL_consisRate = grid.arrange(fig_consis_rate_line02,
-                                                  fig_risk_level_proportion02_line,
-                                                  nrow=2)
-ggsave("Result/consisRate_RLProportion_facet.jpg",
-       fig_facet_proportion_RL_consisRate,
-       height=4,width=8,scale=1.65)
-
-
-fig_compare_consisRate_total_line = grid.arrange(fig_consis_rate_total_line,
-                                                 fig_consis_rate_total_line_MH,
-                                                 fig_consis_rate_total_line_LM,
-                                                 nrow = 3)
-ggsave("Result/compare_consisRate_total.jpg",
-       fig_compare_consisRate_total_line, 
-       height=4,width=8,scale=1.65)
-
-
-fig_compare_consisRate_box = grid.arrange(fig_consisRate_box ,
-                                          fig_consisRate_box_LM,
-                                          fig_consisRate_box_MH,
-                                          nrow = 3)
-ggsave("Result/compare_consisRate_box.jpg",
-       fig_compare_consisRate_box, 
-       height=4,width=8,scale=1.65)
-
-
-
-##### 3week Figure 1 ####
+##### 3week Figure 2 ####
 fig_consis_3week_line_LMH_MT = ggplot(data = consis_3week_LMH_MT,
                                       aes(x = date,
                                           y = consisRate,
@@ -310,10 +282,6 @@ fig_consis_3week_line_LMH_MT = ggplot(data = consis_3week_LMH_MT,
 
 
 
-
-
-
-
 box_plot_compare =  consis_result %>%
   filter(interval == "3week") %>% 
   filter(category == "Original CDC" |
@@ -324,7 +292,7 @@ box_plot_compare =  consis_result %>%
   mutate(interval = as.factor(interval)) %>%
   mutate(community_level = as.factor(community_level))
   
-  fig_box_plot_compare = ggplot(box_plot_compare,
+fig_box_plot_compare = ggplot(box_plot_compare,
          aes(x = category,
              y = consisRate)) +
   geom_boxplot(aes(fill = community_level), alpha=0.4)+ 
@@ -355,190 +323,61 @@ fig01_compare_consisRate_3week_mix = grid.arrange(fig_consis_3week_line_LMH,
                                                                 c(2,2,3,3)))
 
 
-ggsave("Result/Fig01_compare_consisRate_3week.jpg",
+ggsave("Result/Figures/Fig01_compare_consisRate_3week.jpg",
        fig01_compare_consisRate_3week_mix, 
        height=4,width=10,scale=1.65)
 
-##### 3week Figure 2 #####
-fig02_compare_consisRate_3week = grid.arrange(fig_consis_3week_line_LMH_MT,
+
+##### compare consisRate plots #####
+# Original CDC 3weeks
+compare_consisRate_3week_LMH = grid.arrange(fig_consis_3week_line_LMH,
+                                               fig_consis_3week_box_LMH,
+                                               nrow = 1,
+                                               ncol = 3,
+                                               layout_matrix = rbind(c(1,1,2)))
+
+ggsave("Result/Figures/compare_consisRate_3week_LMH.jpg",
+       compare_consisRate_3week_LMH, 
+       height=2,width=8,scale=1.65)
+
+
+# Modified Threshold
+compare_consisRate_3week_LMH_MT = grid.arrange(fig_consis_3week_line_LMH_MT,
                                            fig_consis_3week_box_LMH_MT,
                                            nrow = 1,
                                            ncol = 3,
                                            layout_matrix = rbind(c(1,1,2)))
 
-
-ggsave("Result/Fig02_compare_consisRate_3week_LMH_MT.jpg",
-       fig02_compare_consisRate_3week, 
-       height=2,width=8,scale=1.65)
-
-##### 3week Figure 3 #####
-fig03_compare_consisRate_3week = grid.arrange(fig_consis_3week_line_LMH,
-                                              fig_consis_3week_box_LMH,
-                                              nrow = 1,
-                                              ncol = 3,
-                                              layout_matrix = rbind(c(1,1,2)))
-
-
-ggsave("Result/Figures/Fig03_compare_consisRate_3week_LMH.jpg",
-       fig03_compare_consisRate_3week, 
-       height=2,width=8,scale=1.65)
-
-
-##### 4week Figure 1 ####
-fig_compare_consisRate_4week_mix_LMH = grid.arrange(fig_county_4week_proportion_line_LMH,
-                                                    fig_consis_4week_line_LMH,
-                                                    fig_consis_4week_box_LMH,
-                                                    ncol = 3,
-                                                    nrow = 2,
-                                                    layout_matrix = rbind(c(1,1,3),
-                                                                          c(2,2,3)))
-
-
-ggsave("Result/Fig01_compare_consisRate_LMH_4week.jpg",
-       fig_compare_consisRate_4week_mix_LMH, 
-       height=4,width=8,scale=1.65)
-
-##### 4week Figure 2 #####
-fig02_compare_consisRate_4week = grid.arrange(fig_consis_4week_line_LMH_MT,
-                                           fig_consis_4week_box_LMH_MT,
-                                           nrow = 1,
-                                           ncol = 3,
-                                           layout_matrix = rbind(c(1,1,2)))
-
-
-ggsave("Result/Fig02_compare_consisRate_4week_LMH_MT.jpg",
-       fig02_compare_consisRate_4week, 
-       height=2,width=8,scale=1.65)
-
-##### 4week Figure 3 #####
-fig03_compare_consisRate_4week = grid.arrange(fig_consis_4week_line_LMH,
-                                              fig_consis_4week_box_LMH,
-                                              nrow = 1,
-                                              ncol = 3,
-                                              layout_matrix = rbind(c(1,1,2)))
-
-
-ggsave("Result/Figures/Fig03_compare_consisRate_4week_LMH.jpg",
-       fig03_compare_consisRate_4week, 
+ggsave("Result/Figures/compare_consisRate_3week_LMH_MT.jpg",
+       compare_consisRate_3week_LMH_MT, 
        height=2,width=8,scale=1.65)
 
 
 
-##### 2week Figure 1 ####
-fig_compare_consisRate_mix = grid.arrange(fig_county_proportion_line_LMH,
-                                          fig_consis_rate_line_LMH,
-                                          fig_consis_rate_box_LMH,
-                                          ncol = 3,
-                                          nrow = 2,
-                                          layout_matrix = rbind(c(1,1,3),
-                                                                c(2,2,3)))
+# Original CDC 2weeks
+compare_consisRate_2week_LMH = grid.arrange(fig_consis_2week_line_LMH,
+                                            fig_consis_2week_box_LMH,
+                                            nrow = 1,
+                                            ncol = 3,
+                                            layout_matrix = rbind(c(1,1,2)))
 
-
-ggsave("Result/fig_compare_consisRate_mix.jpg",
-       fig_compare_consisRate_mix, 
-       height=4,width=8,scale=1.65)
-
-##### 2week Figure 2 #####
-fig02_compare_consisRate_2week = grid.arrange(fig_consis_2week_line_LMH_MT,
-                                                 fig_consis_2week_box_LMH_MT,
-                                                 nrow = 1,
-                                                 ncol = 3,
-                                                 layout_matrix = rbind(c(1,1,2)))
-
-
-ggsave("Result/Fig02_compare_consisRate_2week_LMH_MT.jpg",
-       fig02_compare_consisRate_2week, 
+ggsave("Result/Figures/compare_consisRate_2week_LMH.jpg",
+       compare_consisRate_2week_LMH, 
        height=2,width=8,scale=1.65)
 
 
+# Original CDC 4weeks
+compare_consisRate_4week_LMH = grid.arrange(fig_consis_4week_line_LMH,
+                                            fig_consis_4week_box_LMH,
+                                            nrow = 1,
+                                            ncol = 3,
+                                            layout_matrix = rbind(c(1,1,2)))
 
-##### 2week Figure 3 #####
-fig03_compare_consisRate_2week = grid.arrange(fig_consis_2week_line_LMH,
-                                              fig_consis_2week_box_LMH,
-                                              nrow = 1,
-                                              ncol = 3,
-                                              layout_matrix = rbind(c(1,1,2)))
-
-
-ggsave("Result/Figures/Fig03_compare_consisRate_2week_LMH.jpg",
-       fig03_compare_consisRate_2week, 
+ggsave("Result/Figures/compare_consisRate_4week_LMH.jpg",
+       compare_consisRate_4week_LMH, 
        height=2,width=8,scale=1.65)
 
 
-
-##### MAP #####################################
-data(fips_codes)
-# days list
-days = unique(community_level_LMH$date)
-
-# the counties that have consistent data for all weeks in the time interval
-common_counties_df = community_level_LMH %>%
-    group_by(state, fips_code)%>%
-    count(fips_code)%>%
-    filter(n == length(days))%>%
-    select(state, fips_code) %>%
-    mutate(state = tolower(abbr2state(state)))
-
-common_fips = fips_codes %>%
-    mutate(fips = paste(state_code, county_code, sep = "")) %>%
-    mutate(state_name = tolower(state_name)) %>%
-    filter(fips %in% common_counties_df$fips_code &
-               state_name %in% common_counties_df$state) %>%
-    mutate(county = tolower(county)) %>%
-    mutate(county = gsub(pattern = " county",
-                         replacement = "",
-                         county))%>%
-    mutate(state_county = paste(state_name, county))
-
-
-us_county = map_data("county")
-us_state = map_data("state")
-
-common_fips_map = us_county %>%
-    mutate(state_county_map = paste(region, subregion))%>%
-    filter(state_county_map %in% common_fips$state_county)%>%
-    select(-state_county_map)
-
-cnames = us_state %>%
-    group_by(region) %>%
-    mutate(long = mean(range(long)))%>%
-    mutate(lat = mean(range(lat))) %>%
-    mutate(region = state2abbr(region)) %>%
-    select(region, long, lat, group) %>%
-    distinct() %>%
-    mutate(long = replace(long, region == "FL", -81.2)) %>%
-    mutate(long = replace(long, region == "MI", -84)) %>%
-    mutate(long = replace(long, region == "LA", -92.5)) %>%
-    mutate(long = replace(long, region == "VA", -79)) %>%
-    mutate(lat = replace(lat, region == "VT", 44.7)) %>%
-    mutate(lat = replace(lat, region == "MA", 42.5)) %>%
-    mutate(lat = replace(lat, region == "MD", 39.50))
-
-
-county_map = ggplot(data = us_county,
-                    mapping = aes(x = long,
-                                  y = lat, 
-                                  group = group))+
-    geom_polygon(color = "#636363",
-                 fill = NA,
-                 size = 0.05) +
-    geom_polygon(data = us_state,
-                 mapping = aes(long,
-                               lat,
-                               group = group),
-                 fill = NA, 
-                 color = "black",
-                 size = .3) +
-    geom_polygon(data = common_fips_map,
-                 fill = "#386cb0",
-                 alpha=.5)+
-    geom_text(data=cnames, aes(long, lat, label = region), size=3)+
-    coord_equal()+
-    labs(title = "",
-         subtitle = "") +
-    theme_void()
-
-ggsave("Result/available_data_county_map.jpg", county_map, height=4,width=8,scale=1.65)
 
 
 
