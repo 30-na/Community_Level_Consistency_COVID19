@@ -2,7 +2,9 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(usdata)
+
 # LOW MEDIUM HIGH 
+# load dataset
 load("Result/CDC_community_level_county_computed_low_medium_high.RDA")
 
 # list of all available weeks
@@ -30,6 +32,7 @@ consis = full_county_date %>%
          community_level) %>%
   arrange(stateFips,
           date) %>%
+  group_by(stateFips) %>%
   mutate(last_1week = lag(community_level)) %>%
   mutate(last_2week = lag(last_1week)) %>%
   mutate(consis_3weeks = ifelse(last_1week == last_2week & 
@@ -86,7 +89,7 @@ fig_consis_3week_line_LMH = ggplot(data = consis_3week_LMH,
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
     scale_x_date(date_labels = "(%b) %Y",
-                 date_breaks = "180 days",
+                 date_breaks = "89 days",
                  expand = c(0, 0))+
     theme_classic()+
     theme(text = element_text(size = 14))

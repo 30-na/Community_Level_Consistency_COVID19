@@ -6,49 +6,56 @@ library(usdata)
 # LOW AND MEDIUM MERGED
 load("Result/CDC_community_level_county_computed_merged_low_medium.RDA")
 
-# days list
-days = unique(community_level_LM$date)
 
-# the counties that have consistent data for all weeks in the time interval
-common_counties_df = community_level_LM %>%
-    group_by(state, fips_code)%>%
-    count(fips_code)%>%
-    filter(n == length(days))%>%
-    select(state, fips_code) %>%
-    mutate(state = tolower(abbr2state(state)))
+# list of all available weeks
+days = sort(unique(community_level_LM$date))
 
 
-#filter the counties that have consistent data in dataset
-consis = community_level_LM %>% 
-    dplyr::filter(fips_code %in% common_counties_df$fips_code) %>%
+# list of all available counties
+community_level_stateFips = community_level_LM %>%
+    mutate(stateFips = paste(state, fips_code, sep = ","))
+
+stateFips_list = unique(community_level_stateFips$stateFips)
+
+
+# full list of counties and dates
+full_county_date = data.frame(stateFips = rep(stateFips_list, each = length(days)),
+                              date = rep(days, times = length(stateFips_list)))
+
+
+# compute consistency
+consis = full_county_date %>%
+    left_join(community_level_stateFips,
+              by = c("stateFips", "date")) %>%
     select(date,
-           fips_code,
+           stateFips,
            community_level) %>%
-    group_by(fips_code) %>%
-    arrange(fips_code,
-            date)
+    arrange(stateFips,
+            date) %>%
+    group_by(stateFips) %>%
+    mutate(last_1week = lag(community_level)) %>%
+    mutate(last_2week = lag(last_1week)) %>%
+    mutate(last_3week = lag(last_2week)) %>%
+    mutate(consis_4weeks = ifelse(community_level == last_1week & 
+                                      community_level == last_2week &
+                                      community_level == last_3week, 1, 0)) %>%
+    mutate(consis_4weeks = ifelse(is.na(community_level) |
+                                      is.na(last_1week) |
+                                      is.na(last_2week) |
+                                      is.na(last_3week), NA, consis_4weeks)) 
 
-# number of unique community level in four weeks interval
-consis_4weeks = c()
-for(i in 1:nrow(consis)){
-    consis_4weeks[i] = length(unique(c(consis$community_level[i],
-                                       consis$community_level[i+1],
-                                       consis$community_level[i+2],
-                                       consis$community_level[i+3])))
-}
 
-consis$consis_4weeks = consis_4weeks
+
+
 # consistency Rate for each Community risk level
 consis_4week_LM = consis %>%
-    filter(date <= "2022-02-25") %>%
-    mutate(consis_4weeks = replace(consis_4weeks, consis_4weeks != 1, 0)) %>%
     arrange(date) %>%
     group_by(date, community_level) %>%
-    count(consis_4weeks) %>%
-    mutate(total_community_level = sum(n)) %>%
-    mutate(consisRate = n/total_community_level)%>%
-    arrange(date, community_level)%>%
-    filter(consis_4weeks == 1)%>%
+    summarize(consis_counties = sum(consis_4weeks, na.rm = TRUE),
+              total_counties = sum(!is.na(consis_4weeks)),
+              consisRate = round(consis_counties/total_counties,
+                                 digits = 3 )) %>%
+    drop_na() %>%
     mutate(community_level = factor(x = community_level,
                                     levels = c("High", "Low + Medium"),
                                     labels = c("High", "Low + Medium")))
@@ -57,14 +64,14 @@ consis_4week_LM = consis %>%
 
 # Total consistency Rate
 consis_4week_total_LM = consis %>%
-    filter(date <= "2022-02-25") %>%
-    mutate(consis_4weeks = replace(consis_4weeks, consis_4weeks != 1, 0)) %>%
     arrange(date) %>%
     group_by(date) %>%
-    count(consis_4weeks) %>%
-    mutate(total_community_level = sum(n)) %>%
-    mutate(consisRate = n/total_community_level)%>%
-    filter(consis_4weeks == 1)
+    summarize(consis_counties = sum(consis_4weeks, na.rm = TRUE),
+              total_counties = sum(!is.na(consis_4weeks)),
+              consisRate = round(consis_counties/total_counties,
+                                 digits = 3 ))
+
+
 
 
 

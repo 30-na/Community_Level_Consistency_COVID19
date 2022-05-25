@@ -6,62 +6,64 @@ library(usdata)
 # Modified Threshold LOW MEDIUM HIGH 
 load("Result/CDC_community_level_county_computed_low_medium_high_modified_threshold.RDA")
 
-# days list
-days = unique(community_level_LMH_MT$date)
-
-# the counties that have consistent data for all weeks in the time interval
-common_counties_df = community_level_LMH_MT %>%
-    group_by(state, fips_code)%>%
-    count(fips_code)%>%
-    filter(n == length(days))%>%
-    select(state, fips_code) %>%
-    mutate(state = tolower(abbr2state(state)))
+# list of all available weeks
+days = sort(unique(community_level_LMH_MT$date))
 
 
-#filter the counties that have consistent data in community_level_county_computed_modified_threshold dataset
-consis = community_level_LMH_MT %>% 
-    dplyr::filter(fips_code %in% common_counties_df$fips_code) %>%
+# list of all available counties
+community_level_stateFips = community_level_LMH_MT %>%
+    mutate(stateFips = paste(state, fips_code, sep = ","))
+
+stateFips_list = unique(community_level_stateFips$stateFips)
+
+
+# full list of counties and dates
+full_county_date = data.frame(stateFips = rep(stateFips_list, each = length(days)),
+                              date = rep(days, times = length(stateFips_list)))
+
+
+# compute consistency
+consis = full_county_date %>%
+    left_join(community_level_stateFips,
+              by = c("stateFips", "date")) %>%
     select(date,
-           fips_code,
+           stateFips,
            community_level) %>%
-    group_by(fips_code) %>%
-    arrange(fips_code,
-            date)
+    arrange(stateFips,
+            date) %>%
+    group_by(stateFips) %>%
+    mutate(last_1week = lag(community_level)) %>%
+    mutate(consis_2weeks = ifelse(community_level == last_1week, 1, 0)) %>%
+    mutate(consis_2weeks = ifelse(is.na(community_level) | is.na(last_1week),
+                                  NA, consis_2weeks)) 
 
-# number of unique community level in four weeks interval
-consis_2weeks = c()
-for(i in 1:nrow(consis)){
-    consis_2weeks[i] = length(unique(c(consis$community_level[i],
-                                       consis$community_level[i+1])))
-}
-consis$consis_2weeks = consis_2weeks
+
+
 
 # consistency Rate for each Community risk level
 consis_2week_LMH_MT = consis %>%
-    filter(date <= "2022-03-11") %>%
-    mutate(consis_2weeks = replace(consis_2weeks, consis_2weeks != 1, 0)) %>%
     arrange(date) %>%
-    group_by(date, community_level)%>%
-    count(consis_2weeks) %>%
-    mutate(total_community_level = sum(n)) %>%
-    mutate(consisRate = n/total_community_level)%>%
-    arrange(date, community_level)%>%
-    filter(consis_2weeks == 1)%>%
+    group_by(date, community_level) %>%
+    summarize(consis_counties = sum(consis_2weeks, na.rm = TRUE),
+              total_counties = sum(!is.na(consis_2weeks)),
+              consisRate = round(consis_counties/total_counties,
+                                 digits = 3 )) %>%
+    drop_na() %>%
     mutate(community_level = factor(x = community_level,
                                     levels = c("High", "Medium", "Low"),
                                     labels = c("High", "Medium", "Low")))
 
 
+
 # Total consistency Rate
 consis_2week_total_LMH_MT = consis %>%
-    filter(date <= "2022-03-11") %>%
-    mutate(consis_2weeks = replace(consis_2weeks, consis_2weeks != 1, 0)) %>%
     arrange(date) %>%
     group_by(date) %>%
-    count(consis_2weeks) %>%
-    mutate(total_community_level = sum(n)) %>%
-    mutate(consisRate = n/total_community_level)%>%
-    filter(consis_2weeks == 1)
+    summarize(consis_counties = sum(consis_2weeks, na.rm = TRUE),
+              total_counties = sum(!is.na(consis_2weeks)),
+              consisRate = round(consis_counties/total_counties,
+                                 digits = 3 ))
+
 
 
 
