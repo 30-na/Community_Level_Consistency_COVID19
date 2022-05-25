@@ -1,6 +1,7 @@
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(usdata)
 
 # Modified Threshold LOW MEDIUM HIGH 
 load("Result/CDC_community_level_county_computed_low_medium_high_modified_threshold.RDA")
@@ -28,54 +29,56 @@ consis = community_level_LMH_MT %>%
             date)
 
 # number of unique community level in four weeks interval
-consis_3weeks = c()
+consis_4weeks = c()
 for(i in 1:nrow(consis)){
-    consis_3weeks[i] = length(unique(c(consis$community_level[i],
+    consis_4weeks[i] = length(unique(c(consis$community_level[i],
                                        consis$community_level[i+1],
-                                       consis$community_level[i+2])))
+                                       consis$community_level[i+2],
+                                       consis$community_level[i+3])))
 }
-consis$consis_3weeks = consis_3weeks
+
+consis$consis_4weeks = consis_4weeks
 
 # consistency Rate for each Community risk level
-consis_3Week_LMH_MT = consis %>%
-    filter(date <= "2022-03-04") %>%
-    mutate(consis_3weeks = replace(consis_3weeks, consis_3weeks != 1, 0)) %>%
+consis_4week_LMH_MT = consis %>%
+    filter(date <= "2022-02-25") %>%
+    mutate(consis_4weeks = replace(consis_4weeks, consis_4weeks != 1, 0)) %>%
     arrange(date) %>%
     group_by(date, community_level)%>%
-    count(consis_3weeks) %>%
+    count(consis_4weeks) %>%
     mutate(total_community_level = sum(n)) %>%
     mutate(consisRate = n/total_community_level)%>%
     arrange(date, community_level)%>%
-    filter(consis_3weeks == 1)%>%
+    filter(consis_4weeks == 1)%>%
     mutate(community_level = factor(x = community_level,
                                     levels = c("High", "Medium", "Low"),
                                     labels = c("High", "Medium", "Low")))
 
 
 # Total consistency Rate
-consis_3Week_total_LMH_MT = consis %>%
-    filter(date <= "2022-03-04") %>%
-    mutate(consis_3weeks = replace(consis_3weeks, consis_3weeks != 1, 0)) %>%
+consis_4week_total_LMH_MT = consis %>%
+    filter(date <= "2022-02-25") %>%
+    mutate(consis_4weeks = replace(consis_4weeks, consis_4weeks != 1, 0)) %>%
     arrange(date) %>%
     group_by(date) %>%
-    count(consis_3weeks) %>%
+    count(consis_4weeks) %>%
     mutate(total_community_level = sum(n)) %>%
     mutate(consisRate = n/total_community_level)%>%
-    filter(consis_3weeks == 1)
+    filter(consis_4weeks == 1)
 
 
 
 #### plot consistency Rate for each Community risk level
-fig_consis_rate_line_LMH_MT = ggplot(data = consis_3Week_LMH_MT,
-                                  aes(x = date,
-                                      y = consisRate,
-                                      color = community_level))+
+fig_consis_4week_line_LMH_MT = ggplot(data = consis_4week_LMH_MT,
+                                           aes(x = date,
+                                               y = consisRate,
+                                               color = community_level))+
     geom_smooth(method = "lm",
                 formula = y ~ poly(x, 16),
                 se=FALSE,
                 size = 1.5)+
     geom_point(alpha = .3)+
-    labs(title = "C) 3-week community risk level consistency rates with alternative threshold for low risk level",
+    labs(title = "A) 4-week community risk level consistency rates with alternative \nthreshold for low risk level\n",
          x = NULL,
          y = "Consistency Rate")+
     guides(fill=guide_legend(title="Community Level"))+
@@ -88,23 +91,24 @@ fig_consis_rate_line_LMH_MT = ggplot(data = consis_3Week_LMH_MT,
                  date_breaks = "89 days",
                  expand = c(0, 0))+
     theme_classic()+
-    theme(text = element_text(size = 10))
+    theme(text = element_text(size = 14))
 
 
 ### box plot for each community risk level
-fig_consis_rate_box_LMH_MT = ggplot(data = consis_3Week_LMH_MT,
-                                 aes(x = community_level,
-                                     y = consisRate,
-                                     fill = community_level)) +
+fig_consis_4week_box_LMH_MT = ggplot(data = consis_4week_LMH_MT,
+                                          aes(x = community_level,
+                                              y = consisRate,
+                                              fill = community_level)) +
     geom_boxplot(alpha=.4) +
     scale_fill_manual(values = c("#e41a1c", "#dadd00", "#386cb0"))+
     geom_jitter( alpha=.2, width = .015, size = 1)+
     theme_classic()+
-    theme(text = element_text(size = 10),
+    theme(text = element_text(size = 14),
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()) +
-    labs(title = "F) 3-week community risk level consistency rates \n with alternative threshold for low risk level",
+    labs(title = "B) 4-week community risk level \nconsistency rates with alternative \nthreshold for low risk level",
          y = "Consistency Rate",x = NULL) +
+    guides(fill=guide_legend(title="Community Level"))+
     scale_y_continuous(limits=c(0,1),
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
@@ -112,11 +116,11 @@ fig_consis_rate_box_LMH_MT = ggplot(data = consis_3Week_LMH_MT,
 
 
 ### Total consistency rate (line)
-fig_consis_rate_total_line_LMH_MT = ggplot(consis_3Week_total_LMH_MT, aes(x=date,
-                                                                y=consisRate))+
+fig_consis_4week_total_line_LMH_MT = ggplot(consis_4week_total_LMH_MT, aes(x=date,
+                                                                                y=consisRate))+
     geom_smooth(method = "lm",
                 formula = y ~ poly(x, 21))+
-    geom_hline(yintercept = mean(consis_3Week_total_LMH_MT$consisRate),
+    geom_hline(yintercept = mean(consis_4week_total_LMH_MT$consisRate),
                linetype = "dashed")+
     geom_point(alpha = .5)+
     theme_bw()+
@@ -126,8 +130,8 @@ fig_consis_rate_total_line_LMH_MT = ggplot(consis_3Week_total_LMH_MT, aes(x=date
 
 
 ### Total consistency Rate (Box plot)
-fig_consis_rate_total_box_LMH_MT = ggplot(consis_3Week_total_LMH_MT, aes(y=consis_3weeks, x=consisRate))+
-
+fig_consis_4week_total_box_LMH_MT = ggplot(consis_4week_total_LMH_MT, aes(y=consis_4weeks, x=consisRate))+
+    
     geom_jitter( alpha=.3, height=.05)+
     geom_boxplot(fill="steelblue", alpha=.3)+
     xlim(0, 1)+
@@ -141,7 +145,7 @@ fig_consis_rate_total_box_LMH_MT = ggplot(consis_3Week_total_LMH_MT, aes(y=consi
 
 
 #### Proportion of counties in each community risk level
-fig_county_proportion_line_LMH_MT = community_level_LMH_MT %>%
+fig_county_4week_proportion_line_LMH_MT = community_level_LMH_MT %>%
     group_by(date)%>%
     mutate(community_level = factor(x = community_level,
                                     levels = c("High", "Medium", "Low"),
@@ -162,11 +166,11 @@ fig_county_proportion_line_LMH_MT = community_level_LMH_MT %>%
          x = "Date",
          y = "Proportion of counties")
 
-save(consis_3Week_LMH_MT,
-     consis_3Week_total_LMH_MT,
-     fig_consis_rate_line_LMH_MT,
-     fig_consis_rate_box_LMH_MT,
-     fig_consis_rate_total_line_LMH_MT,
-     fig_consis_rate_total_box_LMH_MT,
-     fig_county_proportion_line_LMH_MT,
-     file = "Result/consistency_low_medium_high_modified_threshold.Rda")
+save(consis_4week_LMH_MT,
+     consis_4week_total_LMH_MT,
+     fig_consis_4week_line_LMH_MT,
+     fig_consis_4week_box_LMH_MT,
+     fig_consis_4week_total_line_LMH_MT,
+     fig_consis_4week_total_box_LMH_MT,
+     fig_county_4week_proportion_line_LMH_MT,
+     file = "Result/consistency_4week_low_medium_high_modified_threshold.Rda")

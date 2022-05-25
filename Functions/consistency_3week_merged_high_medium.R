@@ -1,15 +1,16 @@
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(usdata)
 
-# LOW AND MEDIUM MERGED
-load("Result/CDC_community_level_county_computed_merged_low_medium.RDA")
+# load dataset
+load("Result/CDC_community_level_county_computed_merged_high_medium.RDA")
 
 # days list
-days = unique(community_level_LM$date)
+days = unique(community_level_MH$date)
 
 # the counties that have consistent data for all weeks in the time interval
-common_counties_df = community_level_LM %>%
+common_counties_df = community_level_MH %>%
     group_by(state, fips_code)%>%
     count(fips_code)%>%
     filter(n == length(days))%>%
@@ -17,8 +18,8 @@ common_counties_df = community_level_LM %>%
     mutate(state = tolower(abbr2state(state)))
 
 
-#filter the counties that have consistent data in dataset
-consis = community_level_LM %>% 
+#filter the counties that have consistent data in community_level_county_computed dataset
+consis = community_level_MH %>% 
     dplyr::filter(fips_code %in% common_counties_df$fips_code) %>%
     select(date,
            fips_code,
@@ -27,7 +28,7 @@ consis = community_level_LM %>%
     arrange(fips_code,
             date)
 
-# number of unique community level in four weeks interval
+# number of unique community level in three weeks interval
 consis_3weeks = c()
 for(i in 1:nrow(consis)){
     consis_3weeks[i] = length(unique(c(consis$community_level[i],
@@ -36,8 +37,9 @@ for(i in 1:nrow(consis)){
 }
 consis$consis_3weeks = consis_3weeks
 
+
 # consistency Rate for each Community risk level
-consis_3Week_LM = consis %>%
+consis_3week_MH = consis %>%
     filter(date <= "2022-03-04") %>%
     mutate(consis_3weeks = replace(consis_3weeks, consis_3weeks != 1, 0)) %>%
     arrange(date) %>%
@@ -48,13 +50,12 @@ consis_3Week_LM = consis %>%
     arrange(date, community_level)%>%
     filter(consis_3weeks == 1)%>%
     mutate(community_level = factor(x = community_level,
-                                    levels = c("High", "Low + Medium"),
-                                    labels = c("High", "Low + Medium")))
-
+                                    levels = c("High + Medium", "Low"),
+                                    labels = c("High + Medium", "Low")))
 
 
 # Total consistency Rate
-consis_3Week_total_LM = consis %>%
+consis_3week_total_MH = consis %>%
     filter(date <= "2022-03-04") %>%
     mutate(consis_3weeks = replace(consis_3weeks, consis_3weeks != 1, 0)) %>%
     arrange(date) %>%
@@ -65,9 +66,8 @@ consis_3Week_total_LM = consis %>%
     filter(consis_3weeks == 1)
 
 
-
 #### plot consistency Rate for each Community risk level
-fig_consis_rate_line_LM = ggplot(data = consis_3Week_LM,
+fig_consis_3week_line_MH = ggplot(data = consis_3week_MH,
                                    aes(x = date,
                                        y = consisRate,
                                        color = community_level))+
@@ -76,9 +76,9 @@ fig_consis_rate_line_LM = ggplot(data = consis_3Week_LM,
                 se = FALSE,
                 size = 1.5)+
     geom_point(alpha = .3)+
-    scale_color_manual("Community Level",
-                       values = c("#e41a1c", "#7fc97f"))+
-    labs(title="A) 3-week community risk level consistency rate while merging low and medium risk groups",
+    scale_color_manual(name = "Community Level",
+                       values = c("#ff7f00", "#386cb0"))+
+    labs(title="B) 3-week community risk level consistency rate while merging high and medium risk groups",
          x = NULL,
          y = "Consistency Rate")+
     theme_classic()+
@@ -93,18 +93,18 @@ fig_consis_rate_line_LM = ggplot(data = consis_3Week_LM,
 
 
 ### box plot for each community risk level
-fig_consis_rate_box_LM = ggplot(data = consis_3Week_LM,
+fig_consis_3week_box_MH = ggplot(data = consis_3week_MH,
                                  aes(x = community_level,
                                      y = consisRate,
                                      fill = community_level)) +
     geom_boxplot(alpha=.4) +
-    scale_fill_manual(values = c("#e41a1c", "#7fc97f"))+
+    scale_fill_manual(values = c("#ff7f00", "#386cb0"))+
     geom_jitter( alpha=.2, width = .015, size = 1)+
     theme_classic()+
     theme(text = element_text(size = 10),
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()) +
-    labs(title = "D) 3-week community risk level consistency rates \n while merging low and medium risk groups",
+    labs(title = "E) 3-week community risk level consistency rates \n while merging high and medium risk groups",
          y = "Consistency Rate",x = NULL) +
     scale_y_continuous(limits=c(0,1),
                        breaks=c(0, .25, .50, 0.75, 1),
@@ -113,22 +113,22 @@ fig_consis_rate_box_LM = ggplot(data = consis_3Week_LM,
 
 
 ### Total consistency rate (line)
-fig_consis_rate_total_line_LM = ggplot(consis_3Week_total_LM, aes(x=date,
-                                                                y=consisRate))+
+fig_consis_3week_total_line_MH = ggplot(consis_3week_total_MH, aes(x=date,
+                                                            y=consisRate))+
     geom_smooth(method = "lm",
                 formula = y ~ poly(x, 21),
-                color = "#fc8d62")+
+                color = "#66c2a5")+
+    geom_hline(yintercept=mean(consis_3week_total_MH$consisRate),
+               linetype="dashed")+
     geom_point(alpha = .5)+
-    geom_hline(yintercept = mean(consis_3Week_total_LM$consisRate),
-               linetype = "dashed")+
     theme_bw()+
-    labs(title="C) High and medium community risk counties",
+    labs(title="B) Low and medium community risk counties",
          x = "Date",
          y = "Consistency Rate")
 
 
 ### Total consistency Rate (Box plot)
-fig_consis_rate_total_box_LM = ggplot(consis_3Week_total_LM, aes(y=consis_3weeks, x=consisRate))+
+fig_consis_3week_total_box_MH = ggplot(consis_3week_total_MH, aes(y=consis_3weeks, x=consisRate))+
     
     geom_jitter( alpha=.3, height=.05)+
     geom_boxplot(fill="steelblue", alpha=.3)+
@@ -138,16 +138,14 @@ fig_consis_rate_total_box_LM = ggplot(consis_3Week_total_LM, aes(y=consis_3weeks
     theme(axis.title.y=element_blank(),
           axis.text.y=element_blank(),
           axis.ticks.y=element_blank())+
-    labs(title="B) High and moderate community risk counties.",
+    labs(title="D) Low and moderate community risk counties",
          x = "Consistency Rate")
 
-
-save(consis_3Week_LM,
-     consis_3Week_total_LM,
-     fig_consis_rate_line_LM,
-     fig_consis_rate_box_LM,
-     fig_consis_rate_total_line_LM,
-     fig_consis_rate_total_box_LM,
-     file = "Result/consistency_merged_low_medium.Rda")
-
+save(consis_3week_MH,
+     consis_3week_total_MH,
+     fig_consis_3week_line_MH,
+     fig_consis_3week_box_MH,
+     fig_consis_3week_total_line_MH,
+     fig_consis_3week_total_box_MH,
+     file = "Result/consistency_3week_merged_high_medium.Rda")
 
