@@ -89,7 +89,7 @@ fig_consis_3week_line_LMH = ggplot(data = consis_3week_LMH,
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
     scale_x_date(date_labels = "(%b) %Y",
-                 date_breaks = "89 days",
+                 date_breaks = "180 days",
                  expand = c(0, 0))+
     theme_classic()+
     theme(text = element_text(size = 14))
