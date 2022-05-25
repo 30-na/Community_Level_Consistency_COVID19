@@ -379,7 +379,7 @@ fig03_compare_consisRate_3week = grid.arrange(fig_consis_3week_line_LMH,
                                               layout_matrix = rbind(c(1,1,2)))
 
 
-ggsave("Result/Fig03_compare_consisRate_3week_LMH.jpg",
+ggsave("Result/Figures/Fig03_compare_consisRate_3week_LMH.jpg",
        fig03_compare_consisRate_3week, 
        height=2,width=8,scale=1.65)
 
