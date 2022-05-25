@@ -12,13 +12,13 @@ CDC_community_level_county = CDC_risk_new %>%
     select(c(date_updated,
              state,
              county_fips,
-             total_population,
+             county_population,
              covid_cases_per_100k,
              covid_hospital_admissions_per_100k,
              covid_inpatient_bed_utilization) |
                ends_with("community_level"))%>%
     rename(risk_level = ends_with("community_level"),
-           population = total_population,
+           population = county_population,
            new_case = covid_cases_per_100k,
            bed_utilization = covid_inpatient_bed_utilization,
            hospital_admission = covid_hospital_admissions_per_100k)%>%
