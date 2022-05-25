@@ -50,8 +50,8 @@ consis_2week_LM = consis %>%
                                  digits = 3 )) %>%
     drop_na() %>%
     mutate(community_level = factor(x = community_level,
-                                    levels = c("High", "Medium + Low"),
-                                    labels = c("High", "Medium + Low")))
+                                    levels = c("High", "Low + Medium"),
+                                    labels = c("High", "Low + Medium")))
 
 
 
