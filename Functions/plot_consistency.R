@@ -8,6 +8,7 @@ library(tidyr)
 library(gridExtra)
 library(xtable)
 library(tidycensus)
+library(writexl)
 
 
 load("Result/CDC_community_level_county_computed_low_medium_high.RDA")
@@ -221,7 +222,7 @@ consist_2week_result_LMH_MT = consis_2week_LMH_MT %>%
          consisRate_total)
 ##### combine and summarize #####
 #combine all data
-consis_result = rbind(consist_3week_result_LMH,
+consist_result = rbind(consist_3week_result_LMH,
                       consist_3week_result_LM,
                       consist_3week_result_MH,
                       consist_3week_result_LMH_MT,
@@ -236,24 +237,53 @@ consis_result = rbind(consist_3week_result_LMH,
 
 
 # summarize the result
-consis_result_summaries = consis_result %>%
+consist_result_summaries = consis_result %>%
   group_by(category, community_level, interval) %>%
-  summarise(
-    "Overall Lower IQR" = quantile(consisRate_total, probs = .25),
-    "Overall median" = median(consisRate_total),
-    "Overall Upper IQR" = quantile(consisRate_total, probs = .75),
-    "Lower IQR" = quantile(consisRate, probs = .25),
-    "median" = median(consisRate),
-    "Upper IQR" = quantile(consisRate, probs = .75)) %>%
+  summarise("median" = median(consisRate),
+            "Lower IQR" = quantile(consisRate, probs = .25),
+            "Upper IQR" = quantile(consisRate, probs = .75),
+            "Overall median" = median(consisRate_total),
+            "Overall Lower IQR" = quantile(consisRate_total, probs = .25),
+            "Overall Upper IQR" = quantile(consisRate_total, probs = .75)) %>%
   rename("Community level" = community_level,
-         "Interval" = interval) %>%
-  arrange(Interval, category)
+         "Interval" = interval,
+         Median = median) %>%
+  arrange(Interval, category) 
+  
+
+overall_table =  consist_result_summaries %>%
+  mutate("Community level" = "Overall") %>%
+  ungroup() %>%
+  select("Interval",
+         category,
+         "Community level",
+         "Overall Lower IQR",
+         "Overall median",
+         "Overall Upper IQR") %>%
+  distinct() %>%
+  rename(Median = "Overall median",
+         "Lower IQR" = "Overall Lower IQR",
+         "Upper IQR" = "Overall Upper IQR")
+
+result_table_tableau = consist_result_summaries %>%
+  select("Interval",
+         category,
+         "Community level",
+         Median,
+         "Lower IQR",
+         "Upper IQR") %>%
+  rbind(overall_table) %>%
+  arrange(Interval,
+          category,
+          "Community level")
   
 # Making latex table from summaries
-table1 = xtable(consis_result_summaries, digits = 3)
+table1 = xtable(consist_result_summaries, digits = 3)
 print(table1, include.rownames = FALSE)
 
-
+# save as Excel file
+write_xlsx(result_table_tableau,
+           "Result/consist_result_summaries.xlsx")
 
 ##### 3week Figure 2 ####
 fig_consis_3week_line_LMH_MT = ggplot(data = consis_3week_LMH_MT,
