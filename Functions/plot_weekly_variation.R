@@ -4,6 +4,7 @@ library(tidyr)
 library(usdata)
 library(maps)
 library(stringr)
+library(gridExtra)
 
 
 
@@ -35,14 +36,22 @@ changeProb_calculate = community_level_LMH %>%
               total_week = sum(!is.na(is_changed)),
               prob_risk_changed = round(change_week/total_week,
                                  digits = 3 )) %>%
-    mutate(category = cut(prob_risk_changed,
-                          breaks = c(-Inf, .2, .40, .60, .80, 1),
-                          labels = c("0%-19.9%", "20%-39.9%",
-                                     "40%-59.9%", "60%-79.9%",
-                                     "80%-100%")))
+    # mutate(category = cut(prob_risk_changed,
+    #                       breaks = c(-Inf, .2, .40, .60, .80, 1),
+    #                       labels = c("0%-19.9%", "20%-39.9%",
+    #                                  "40%-59.9%", "60%-79.9%",
+    #                                  "80%-100%")))
+  mutate(category = cut(prob_risk_changed,
+                        breaks = c(-Inf, .1, .20, .30, .40, .5, .6),
+                        labels = c("0%-9.9%", "10%-19.9%",
+                                   "20%-29.9%", "30%-39.9%",
+                                   "40%-49.9%", "50%-59.9%")))
+  # mutate(category = cut(prob_risk_changed,
+  #                       breaks = c(-Inf, .15, .30, .45, .60),
+  #                       labels = c("0%-14.9%", "15%-29.9%",
+  #                                   "30%-44.9%", "45%-60%")))
 
 
-  
 
 changeProb = changeProb_calculate %>%
     rename("fips" = fips_code) %>%
@@ -72,12 +81,22 @@ fig_changedProb_proportion = ggplot(data = changeProb_proportion,
             color = "black",
             show.legend = FALSE)+
     scale_fill_manual(name = "Rate of change", 
-                      values = c("#ffffcc", "#fed976", "#fd8d3c"),
+                      #values = c("#ffffcc", "#fed976", "#fd8d3c"),
+                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026"),
+                      # values = c("#ffffb2", "#fecc5c", "#fd8d3c","#e31a1c"),
+                      
                       drop = FALSE,
-                      limits = c("0%-19.9%", "20%-39.9%",
-                                 "40%-59.9%")) +
+                      # limits = c("0%-19.9%", "20%-39.9%",
+                      #            "40%-59.9%")) +
+                      limits = c("0%-9.9%", "10%-19.9%",
+                                 "20%-29.9%", "30%-39.9%",
+                                 "40%-49.9%", "50%-59.9%")) +
+                      # limits = c("0%-14.9%", "15%-29.9%",
+                      #            "30%-44.9%", "45%-60%")) +
+  
     theme_classic()+
-    theme(text = element_text(size = 14)) + 
+    theme(text = element_text(size = 14),
+          axis.text.x = element_text(angle = 45, hjust =1)) + 
     labs(title = "\nC) Proportion of counties in\n each rate of change bracket",
          x = "Rate of change",
          y= "")+
@@ -112,14 +131,22 @@ fig_changedProb_map = ggplot(data = county_changeProb_map,
                  color = "black",
                  size = .3) +
     coord_equal()+
-    labs(title = "  B) Counties with different probability of change in community risk",
+    labs(title = "  B) Counties with different probability of change in community risk level",
          subtitle = "")+
     scale_fill_manual(name = "Rate of change", 
-                        values = c("#ffffcc", "#fed976", "#fd8d3c", "#e31a1c", "#800026"),
-                        drop = FALSE,
-                        limits = c("0%-19.9%", "20%-39.9%",
-                                   "40%-59.9%", "60%-79.9%",
-                                   "80%-100%")) +
+                        #values = c("#ffffcc", "#fed976", "#fd8d3c", "#e31a1c", "#800026"),
+                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026"),
+                      # values = c("#ffffb2", "#fecc5c", "#fd8d3c","#e31a1c"),
+                      
+                      drop = FALSE,
+                        # limits = c("0%-19.9%", "20%-39.9%",
+                        #            "40%-59.9%", "60%-79.9%",
+                        #            "80%-100%")) +
+                      limits = c("0%-9.9%", "10%-19.9%",
+                                 "20%-29.9%", "30%-39.9%",
+                                 "40%-49.9%", "50%-59.9%"))+
+                      # limits = c("0%-14.9%", "15%-29.9%",
+                      #            "30%-44.9%", "45%-60%")) +
     theme_void()+
     theme(text = element_text(size = 14))
 
@@ -225,23 +252,28 @@ fig_combine_change3week_variation_LMH = ggplot(data = combine_change3week_variat
                                                aes(x = date,
                                                    y = rate,
                                                    color = variation))+
-    geom_smooth(method = "lm",
-                formula = y ~ poly(x, 23),
-                se=FALSE,
-                size = 1)+
+    # geom_smooth(method = "lm",
+    #             formula = y ~ poly(x, 26),
+    #             se=FALSE,
+    #             size = 1)+
+  geom_line(size = 1)+
     geom_point(alpha = .4)+
-    labs(title = "A) Proportion of counties with changed risk level.",
+    labs(title = "A) Proportion of counties with change in COVID-19 community risk level",
          x = NULL,
          y = "Proportion of counties")+
     scale_y_continuous(limits=c(0,1),
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
-    scale_x_date(date_labels = "(%b) %Y",
+    scale_x_date(date_labels = "%b %Y",
                  date_breaks = "89 days",
                  expand = c(0, 0))+
     theme_classic()+
     theme(text = element_text(size = 14))+
-    scale_color_manual(values = c("#b2182b", "#2166ac"))
+    scale_color_manual(name = "Variation",
+                       values = c("#b2182b", "#2166ac"),
+                       labels = c("Variation in 3 weeks",
+                                  "Weekly variation")) 
+  
 
 
 
