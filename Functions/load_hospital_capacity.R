@@ -7,13 +7,16 @@ Hospital_file = fread("Data/COVID-19_Reported_Patient_Impact_and_Hospital_Capaci
 
 
 #clean data
-# use "used_beds_covid" for computing bed accupied rate
+# use "used_beds_covid" for computing bed occupied rate
 # use the sum of "previous_day_admission_adult_covid_confirmed_7_day_sum" and 
 # "previous_day_admission_pediatric_covid_confirmed_7_day_sum" to compute admission in 100 
-
+# total_beds_7_day_avg:
+# Average of total number of all staffed inpatient and outpatient beds in the hospital,
+# including all overflow, observation, and active surge/expansion beds used for inpatients
+# and for outpatients (including all ICU, ED, and observation) reported during the 7-day period.
 ####################
 # set a random number between 1, 2, and 3
-bed_accupied = Hospital_file %>%
+bed_occupied = Hospital_file %>%
     select(collection_week,
            state,
            fips_code,
@@ -30,22 +33,22 @@ bed_accupied = Hospital_file %>%
 
 #  Suppression is applied to the file for sums and averages less than four (4)
 set.seed(214654)
-bed_accupied$total_beds[bed_accupied$total_beds == -999999] = sample(x = c(1,2,3), size = 1)
-bed_accupied$used_beds_covid[bed_accupied$used_beds_covid == -999999] = sample(x = c(1,2,3), size = 1)
-bed_accupied$adult_hos_7day[bed_accupied$adult_hos_7day == -999999] = sample(x = c(1,2,3), size = 1)
-bed_accupied$pediatric_hos_7day[bed_accupied$pediatric_hos_7day == -999999] = sample(x = c(1,2,3), size = 1)
+bed_occupied$total_beds[bed_occupied$total_beds == -999999] = sample(x = c(1,2,3), size = 1)
+bed_occupied$used_beds_covid[bed_occupied$used_beds_covid == -999999] = sample(x = c(1,2,3), size = 1)
+bed_occupied$adult_hos_7day[bed_occupied$adult_hos_7day == -999999] = sample(x = c(1,2,3), size = 1)
+bed_occupied$pediatric_hos_7day[bed_occupied$pediatric_hos_7day == -999999] = sample(x = c(1,2,3), size = 1)
 
 # compute hospital_admissions and bed_utilization
-hospital_utilization = bed_accupied %>%
+hospital_utilization = bed_occupied %>%
     arrange(date, state, fips_code) %>%
     group_by(fips_code, date, state) %>%
     summarise(total_beds_county = sum(total_beds),
-              accupied_bed_county = sum(used_beds_covid),
+              occupied_bed_county = sum(used_beds_covid),
               adult_hos_7day_county = sum(adult_hos_7day),
               pediatric_hos_7day_county = sum(pediatric_hos_7day)) %>%
     mutate(date = as.Date(date, format="%Y/%m/%d"),
            hospital_admissions = adult_hos_7day_county + pediatric_hos_7day_county,
-           bed_utilization = round(x=(accupied_bed_county/total_beds_county)*100, digit=2))
+           bed_utilization = round(x=(occupied_bed_county/total_beds_county)*100, digit=2))
 
 
 # set bed_utilization > 100% and bed_utilization < 0% to NA
@@ -60,7 +63,7 @@ save(hospital_utilization, file="Result/hospital_utilization_county.RDA")
 ####################
 # analysis without the suppressed hospital data
 
-bed_accupied = Hospital_file %>%
+bed_occupied = Hospital_file %>%
     select(collection_week,
            state,
            fips_code,
@@ -76,22 +79,22 @@ bed_accupied = Hospital_file %>%
 
 
 
-bed_accupied$total_beds[bed_accupied$total_beds == -999999] = NA
-bed_accupied$used_beds_covid[bed_accupied$used_beds_covid == -999999] = NA
-bed_accupied$adult_hos_7day[bed_accupied$adult_hos_7day == -999999] = NA
-bed_accupied$pediatric_hos_7day[bed_accupied$pediatric_hos_7day == -999999] = NA
+bed_occupied$total_beds[bed_occupied$total_beds == -999999] = NA
+bed_occupied$used_beds_covid[bed_occupied$used_beds_covid == -999999] = NA
+bed_occupied$adult_hos_7day[bed_occupied$adult_hos_7day == -999999] = NA
+bed_occupied$pediatric_hos_7day[bed_occupied$pediatric_hos_7day == -999999] = NA
 
 # compute hospital_admissions and bed_utilization
-hospital_utilization_suppNA = bed_accupied %>%
+hospital_utilization_suppNA = bed_occupied %>%
     arrange(date, state, fips_code) %>%
     group_by(fips_code, date, state) %>%
     summarise(total_beds_county = sum(total_beds),
-              accupied_bed_county = sum(used_beds_covid),
+              occupied_bed_county = sum(used_beds_covid),
               adult_hos_7day_county = sum(adult_hos_7day),
               pediatric_hos_7day_county = sum(pediatric_hos_7day)) %>%
     mutate(date = as.Date(date, format="%Y/%m/%d"),
            hospital_admissions = adult_hos_7day_county + pediatric_hos_7day_county,
-           bed_utilization = round(x=(accupied_bed_county/total_beds_county)*100, digit=2))
+           bed_utilization = round(x=(occupied_bed_county/total_beds_county)*100, digit=2))
 
 
 # set bed_utilization > 100% and bed_utilization < 0% to NA
@@ -105,7 +108,7 @@ save(hospital_utilization_suppNA, file="Result/hospital_utilization_suppNA_count
 ####################
 # analysis with all suppressed hospital data equal to 1
 
-bed_accupied = Hospital_file %>%
+bed_occupied = Hospital_file %>%
     select(collection_week,
            state,
            fips_code,
@@ -121,22 +124,22 @@ bed_accupied = Hospital_file %>%
 
 
 
-bed_accupied$total_beds[bed_accupied$total_beds == -999999] = 1
-bed_accupied$used_beds_covid[bed_accupied$used_beds_covid == -999999] = 1
-bed_accupied$adult_hos_7day[bed_accupied$adult_hos_7day == -999999] = 1
-bed_accupied$pediatric_hos_7day[bed_accupied$pediatric_hos_7day == -999999] = 1
+bed_occupied$total_beds[bed_occupied$total_beds == -999999] = 1
+bed_occupied$used_beds_covid[bed_occupied$used_beds_covid == -999999] = 1
+bed_occupied$adult_hos_7day[bed_occupied$adult_hos_7day == -999999] = 1
+bed_occupied$pediatric_hos_7day[bed_occupied$pediatric_hos_7day == -999999] = 1
 
 # compute hospital_admissions and bed_utilization
-hospital_utilization_supp1 = bed_accupied %>%
+hospital_utilization_supp1 = bed_occupied %>%
     arrange(date, state, fips_code) %>%
     group_by(fips_code, date, state) %>%
     summarise(total_beds_county = sum(total_beds),
-              accupied_bed_county = sum(used_beds_covid),
+              occupied_bed_county = sum(used_beds_covid),
               adult_hos_7day_county = sum(adult_hos_7day),
               pediatric_hos_7day_county = sum(pediatric_hos_7day)) %>%
     mutate(date = as.Date(date, format="%Y/%m/%d"),
            hospital_admissions = adult_hos_7day_county + pediatric_hos_7day_county,
-           bed_utilization = round(x=(accupied_bed_county/total_beds_county)*100, digit=2))
+           bed_utilization = round(x=(occupied_bed_county/total_beds_county)*100, digit=2))
 
 
 # set bed_utilization > 100% and bed_utilization < 0% to NA
@@ -151,7 +154,7 @@ save(hospital_utilization_supp1, file="Result/hospital_utilization_supp1_county.
 ####################
 # analysis with all suppressed hospital data equal to 3
 
-bed_accupied = Hospital_file %>%
+bed_occupied = Hospital_file %>%
     select(collection_week,
            state,
            fips_code,
@@ -167,23 +170,23 @@ bed_accupied = Hospital_file %>%
 
 
 
-bed_accupied$total_beds[bed_accupied$total_beds == -999999] = 3
-bed_accupied$used_beds_covid[bed_accupied$used_beds_covid == -999999] = 3
-bed_accupied$adult_hos_7day[bed_accupied$adult_hos_7day == -999999] = 3
-bed_accupied$pediatric_hos_7day[bed_accupied$pediatric_hos_7day == -999999] = 3
+bed_occupied$total_beds[bed_occupied$total_beds == -999999] = 3
+bed_occupied$used_beds_covid[bed_occupied$used_beds_covid == -999999] = 3
+bed_occupied$adult_hos_7day[bed_occupied$adult_hos_7day == -999999] = 3
+bed_occupied$pediatric_hos_7day[bed_occupied$pediatric_hos_7day == -999999] = 3
 
 
 # compute hospital_admissions and bed_utilization
-hospital_utilization_supp3 = bed_accupied %>%
+hospital_utilization_supp3 = bed_occupied %>%
     arrange(date, state, fips_code) %>%
     group_by(fips_code, date, state) %>%
     summarise(total_beds_county = sum(total_beds),
-              accupied_bed_county = sum(used_beds_covid),
+              occupied_bed_county = sum(used_beds_covid),
               adult_hos_7day_county = sum(adult_hos_7day),
               pediatric_hos_7day_county = sum(pediatric_hos_7day)) %>%
     mutate(date = as.Date(date, format="%Y/%m/%d"),
            hospital_admissions = adult_hos_7day_county + pediatric_hos_7day_county,
-           bed_utilization = round(x=(accupied_bed_county/total_beds_county)*100, digit=2))
+           bed_utilization = round(x=(occupied_bed_county/total_beds_county)*100, digit=2))
 
 
 # set bed_utilization > 100% and bed_utilization < 0% to NA
