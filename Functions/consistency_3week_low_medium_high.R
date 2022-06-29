@@ -190,3 +190,13 @@ save(consis_3week_LMH,
      fig_county_3week_proportion_line_LMH,
      file = "Result/consistency_3week_low_medium_high.Rda")
 
+compare_consisRate_3week_LMH = grid.arrange(fig_consis_3week_line_LMH,
+                                                  fig_consis_3week_box_LMH,
+                                                  nrow = 1,
+                                                  ncol = 3,
+                                                  layout_matrix = rbind(c(1,1,2)))
+
+ggsave("Result/Figures/compare_consisRate_3week_LMH.jpg",
+       compare_consisRate_3week_LMH, 
+       height=2,width=8,scale=1.65)
+
