@@ -241,7 +241,7 @@ for(st in state_list){
     ggsave(paste("Result/Figures/fig_changedProb_map", st, ".jpg", sep = "_"),
            fig_mixed_variation, 
            height=4,width=8,scale=1.65)
-    print(st)
+    
 }
 
 
