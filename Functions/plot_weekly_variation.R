@@ -52,6 +52,10 @@ changeProb_calculate = community_level_LMH %>%
   #                                   "30%-44.9%", "45%-60%")))
 
 
+save(changeProb_calculate,
+     file="Result/changeProb_calculate.RDA") 
+
+
 
 changeProb = changeProb_calculate %>%
     rename("fips" = fips_code) %>%
