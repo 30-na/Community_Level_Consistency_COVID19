@@ -9,7 +9,6 @@ library(usdata)
 library(gridExtra)
 census_api_key("7e83aa1d195fd7cd921e4ac747998c618f05460d")
 
-# define the function
 
 # 1. load data (LOW MEDIUM HIGH, random suppressed value)  
 load("Result/CDC_community_level_county_computed_low_medium_high.RDA")
