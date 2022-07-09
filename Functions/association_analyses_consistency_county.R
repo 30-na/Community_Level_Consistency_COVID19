@@ -8,6 +8,7 @@ library(tigris)
 library(usdata)
 library(ggExtra)
 library(readxl)
+library(ggpubr)
 
 census_api_key("7e83aa1d195fd7cd921e4ac747998c618f05460d")
 
@@ -122,7 +123,7 @@ fig_NCHS_probChange_density = ggplot(data = merged_changeRate,
                                                      fill = UR_category)) +
     geom_density(alpha=0.3)+
     #geom_smooth(method = "loess") +
-    labs(title="\n \n probability of change in different NCHS Urban-Rural Category",
+    labs(title="\n \n Probability of change in different NCHS Urban-Rural Category",
          x = "Probability of Change") +
     theme_bw()+
     scale_fill_manual(name = "NCHS Urban-Rural Classification",
@@ -140,18 +141,23 @@ ggsave("Result/Figures/fig_NCHS_probChange_density.jpg",
 
 
 # Urban and Rural categories boxplot
+anno = t.test(prob_risk_changed ~ UR_category,
+              data = merged_changeRate,
+              var.equal = T)
+anno = 1.56
 fig_NCHS_probChange_box = ggplot(data = merged_changeRate,
-                                         mapping = aes(x = prob_risk_changed,
+                                         mapping = aes(x = UR_category,
+                                                       y = prob_risk_changed,
                                                        fill = UR_category)) +
     geom_boxplot(alpha=0.8)+
     #geom_smooth(method = "loess") +
-    labs(title="\n \n probability of change in different NCHS Urban-Rural Category",
-         x = "Probability of Change") +
+    labs(title="\n \n Probability of change in different NCHS Urban-Rural Category",
+         y = "Probability of Change") +
     theme_bw()+
     scale_fill_manual(name = "NCHS Urban-Rural Classification",
-                      values = rev(c('#f0f9e8','#ccebc5','#a8ddb5','#7bccc4','#43a2ca','#0868ac')))+
-    coord_flip()
-
+                      values = rev(c('#f0f9e8','#ccebc5','#a8ddb5','#7bccc4','#43a2ca','#0868ac'))) +
+    stat_compare_means(label = "p.format") +
+    geom_signif(annotations = anno)
 
 
 ggsave("Result/Figures/fig_NCHS_probChange_box.jpg",
