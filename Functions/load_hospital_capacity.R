@@ -23,12 +23,27 @@ bed_occupied = Hospital_file %>%
            total_beds_7_day_avg,
            inpatient_beds_used_covid_7_day_avg,
            previous_day_admission_adult_covid_confirmed_7_day_sum,
-           previous_day_admission_pediatric_covid_confirmed_7_day_sum)%>%
+           previous_day_admission_pediatric_covid_confirmed_7_day_sum,)%>%
     rename(date = collection_week,
            total_beds = total_beds_7_day_avg,
            used_beds_covid = inpatient_beds_used_covid_7_day_avg,
            adult_hos_7day = previous_day_admission_adult_covid_confirmed_7_day_sum,
            pediatric_hos_7day = previous_day_admission_pediatric_covid_confirmed_7_day_sum)
+
+
+
+
+hospital_id = Hospital_file %>%
+    select(collection_week,
+           state,
+           fips_code,
+           hospital_pk)%>%
+    rename(date = collection_week)
+
+#save the output
+save(hospital_id, file="Result/hospital_id.RDA") 
+
+
 
 
 #  Suppression is applied to the file for sums and averages less than four (4)
