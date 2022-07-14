@@ -165,8 +165,110 @@ ggsave("Result/Figures/fig_hos_per100_probChange_point.jpg",
 
 
 
+# Log2 Number of hospital per 100000 in each county VS probability of change
+fig_hos_per100_probChange_point_log = ggplot(data = merged_changeRate,
+                                             mapping = aes(x = log2(hos_per100),
+                                                           y = prob_risk_changed,
+                                                                color = UR_category,
+                                                           group = FALSE)) +
+    geom_point() +
+    geom_smooth(method = "lm",
+                se = FALSE,
+                formula = y~x) +
+    labs(title="\n \n Log2 The number of reported hospital Vs probability of change in community risk level",
+         x = "Log2 Number of hospital per 100000",
+         y = "Probability of Change") +
+    theme_bw() +
+    scale_color_manual(name = "NCHS Urban-Rural Classification",
+                                 values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
+                                                '#7bccc4','#43a2ca','#0868ac'))) +
+    stat_cor(method = "pearson")
+
+fig_hos_per100_probChange_point_log = ggMarginal(fig_hos_per100_probChange_point_log,
+                                                 type = "histogram")
 
 
+ggsave("Result/Figures/fig_hos_per100_probChange_point_log.jpg",
+       fig_hos_per100_probChange_point_log, height=4,width=8,scale=1.65)
+
+
+fit_log2 = lm(prob_risk_changed ~ log2(hos_per100),
+         data = merged_changeRate)
+summary(fit_log2)
+
+fit = lm(prob_risk_changed ~ hos_per100,
+         data = merged_changeRate)
+summary(fit)
+
+# Log2 Number of hospital per 100000 in each county VS probability of change facet
+fig_hos_per100_probChange_point_log_facet = ggplot(data = merged_changeRate,
+                                             mapping = aes(x = log2(hos_per100),
+                                                           y = prob_risk_changed,
+                                                           #color = UR_category,
+                                                           group = FALSE)) +
+    geom_point() +
+    geom_smooth(method = "lm",
+                se = FALSE,
+                formula = y~x) +
+    labs(title="\n \n Log2 The number of reported hospital Vs probability of change in community risk level",
+         x = "Log2 Number of hospital per 100000",
+         y = "Probability of Change") +
+    theme_bw() +
+    scale_color_manual(name = "NCHS Urban-Rural Classification",
+                       values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
+                                      '#7bccc4','#43a2ca','#0868ac'))) +
+    stat_cor(method = "pearson") +
+    facet_wrap(. ~ UR_category)
+
+fig_hos_per100_probChange_point_log_facet = ggMarginal(fig_hos_per100_probChange_point_log_facet,
+                                                 type = "histogram")
+
+
+ggsave("Result/Figures/fig_hos_per100_probChange_point_log_facet.jpg",
+       fig_hos_per100_probChange_point_log_facet, height=4,width=8,scale=1.65)
+
+
+
+
+
+# Number of hospital per 100000 in each county VS Population
+fig_hos_per100_pop_2020 = ggplot(data = merged_changeRate,
+                                                   mapping = aes(x = log(pop_2020),
+                                                                 y = hos_per100,
+                                                                 #color = UR_category,
+                                                                 group = FALSE)) +
+    geom_point() +
+    geom_smooth(method = "lm",
+                se = FALSE,
+                formula = y~x) +
+    labs(title="\n \n Population Vs hospital per 100000",
+         x = "log of Population",
+         y = "hospital per 100000") +
+    theme_bw() +
+    scale_color_manual(name = "NCHS Urban-Rural Classification",
+                       values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
+                                      '#7bccc4','#43a2ca','#0868ac'))) +
+    facet_wrap(. ~ UR_category)+
+    stat_cor(method = "pearson")
+    
+
+fig_hos_per100_pop_2020 = ggMarginal(fig_hos_per100_pop_2020,
+                                                       type = "histogram")
+
+
+ggsave("Result/Figures/fig_hos_per100_pop_2020_facet.jpg",
+       fig_hos_per100_pop_2020, height=4,width=8,scale=1.65)
+
+
+
+a = merged_changeRate %>%
+    dplyr::select(county.x,
+                  pop_2020,
+                  hospitalNum_max,
+                  hos_per100,
+                  UR_category)
+
+names(merged_changeRate)
 # urban population and probability of change for each category
 fig_pop_2020_probChange_point_facet = ggplot(data = merged_changeRate,
                                        mapping = aes(x = log(pop_2020),
@@ -338,3 +440,4 @@ fig_changedProb_NCHS_map = ggplot(data = countyGeo) +
 ggsave("Result/Figures/fig_changedProb_NCHS_map.jpg",
        fig_changedProb_NCHS_map, 
        height=4,width=8,scale=1.65)
+
