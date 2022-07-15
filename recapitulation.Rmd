@@ -1,0 +1,15 @@
+---
+title: "Recapitulation"
+author: "Sina Mokhtar"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Reviewer Number:1
+* occupancy data at the hospital level
+* moving average?
+* rate of change” definition is unclear.
+*  would it be counted twice in the “rate of change” numerator for that week. This should be clarifie
