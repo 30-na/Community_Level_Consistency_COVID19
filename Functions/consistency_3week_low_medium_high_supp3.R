@@ -95,13 +95,19 @@ fig_consis_3week_line_LMH_supp3 = ggplot(data = consis_3week_LMH_supp3,
 
 
 ### box plot for each community risk level
+means = aggregate(consisRate ~  community_level,
+                  consis_3week_LMH_supp3,
+                  mean) %>%
+    mutate(consisRate = round(consisRate, 2))
+
+
 fig_consis_3week_box_LMH_supp3 = ggplot(data = consis_3week_LMH_supp3,
                                          aes(x = community_level,
                                              y = consisRate,
                                              fill = community_level)) +
     geom_boxplot(alpha=.4) +
     scale_fill_manual(values = c("#e41a1c", "#dadd00", "#386cb0"))+
-    geom_jitter( alpha=.2, width = .015, size = 1)+
+    #geom_jitter( alpha=.2, width = .015, size = 1)+
     theme_classic()+
     theme(text = element_text(size = 14),
           axis.ticks.x = element_blank(),
@@ -112,7 +118,16 @@ fig_consis_3week_box_LMH_supp3 = ggplot(data = consis_3week_LMH_supp3,
     scale_y_continuous(limits=c(0,1),
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
-    scale_x_discrete()
+    scale_x_discrete()+
+    stat_summary(fun=mean,
+                 colour="black",
+                 geom="point", 
+                 shape=18,
+                 size=3,
+                 show.legend=FALSE) + 
+    geom_text(data = means,
+              aes(label = consisRate,
+                  y = consisRate + 0.08))
 
 
 

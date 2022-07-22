@@ -71,7 +71,6 @@ changeProb = changeProb_calculate %>%
 
 changeProb_proportion = changeProb_calculate %>%
     group_by(category) %>%
-    drop_na() %>%
     summarize( n = n()) %>%
     mutate(total = sum(n)) %>%
     mutate(proportion = round(n/total, digit = 3))
@@ -139,16 +138,16 @@ fig_changedProb_map = ggplot(data = county_changeProb_map,
          subtitle = "")+
     scale_fill_manual(name = "Rate of change", 
                         #values = c("#ffffcc", "#fed976", "#fd8d3c", "#e31a1c", "#800026"),
-                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026"),
+                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026", "#7E7E7E"),
                       # values = c("#ffffb2", "#fecc5c", "#fd8d3c","#e31a1c"),
                       
-                      drop = FALSE,
+                      drop = TRUE,
                         # limits = c("0%-19.9%", "20%-39.9%",
                         #            "40%-59.9%", "60%-79.9%",
                         #            "80%-100%")) +
                       limits = c("0%-9.9%", "10%-19.9%",
                                  "20%-29.9%", "30%-39.9%",
-                                 "40%-49.9%", "50%-59.9%"))+
+                                 "40%-49.9%", "50%-59.9%", "NA"))+
                       # limits = c("0%-14.9%", "15%-29.9%",
                       #            "30%-44.9%", "45%-60%")) +
     theme_void()+
