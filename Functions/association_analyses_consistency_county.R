@@ -682,7 +682,7 @@ fig_category_population_ratio_bar = ggplot(data = county_population_bar,
 
 ggsave("Result/Figures/fig_category_population_ratio_bar.jpg",
        fig_category_population_ratio_bar, 
-       height=4,width=8,scale=1.65)
+       height=3,width=8,scale=1.65)
 
 
 fig_category_population_ratio_hist = county_population_NA %>%
@@ -695,7 +695,7 @@ fig_category_population_ratio_hist = county_population_NA %>%
 
 ggsave("Result/Figures/fig_category_population_ratio_hist.jpg",
        fig_category_population_ratio_hist, 
-       height=4,width=8,scale=1.65)
+       height=3,width=8,scale=1.65)
 
 
 fig_category_population_ratio_box = county_population_NA %>%
@@ -709,7 +709,7 @@ fig_category_population_ratio_box = county_population_NA %>%
 
 ggsave("Result/Figures/fig_category_population_ratio_box.jpg",
        fig_category_population_ratio_box, 
-       height=4,width=8,scale=1.65)
+       height=3,width=8,scale=1.65)
 
 
 
