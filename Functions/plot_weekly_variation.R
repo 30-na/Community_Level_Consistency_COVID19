@@ -69,44 +69,6 @@ changeProb = changeProb_calculate %>%
                   category)
 
 
-changeProb_proportion = changeProb_calculate %>%
-    group_by(category) %>%
-    summarize( n = n()) %>%
-    mutate(total = sum(n)) %>%
-    mutate(proportion = round(n/total, digit = 3))
-
-
-# bar plot for proportion of counties with different change propability
-fig_changedProb_proportion = ggplot(data = changeProb_proportion,
-                                    aes(x = category,
-                                    fill = category)) + 
-    geom_col(aes(y = proportion),
-            color = "black",
-            show.legend = FALSE)+
-    scale_fill_manual(name = "Rate of change", 
-                      #values = c("#ffffcc", "#fed976", "#fd8d3c"),
-                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026"),
-                      # values = c("#ffffb2", "#fecc5c", "#fd8d3c","#e31a1c"),
-                      
-                      drop = FALSE,
-                      # limits = c("0%-19.9%", "20%-39.9%",
-                      #            "40%-59.9%")) +
-                      limits = c("0%-9.9%", "10%-19.9%",
-                                 "20%-29.9%", "30%-39.9%",
-                                 "40%-49.9%", "50%-59.9%")) +
-                      # limits = c("0%-14.9%", "15%-29.9%",
-                      #            "30%-44.9%", "45%-60%")) +
-  
-    theme_classic()+
-    theme(text = element_text(size = 14),
-          axis.text.x = element_text(angle = 45, hjust =1)) + 
-    labs(title = "\nC) Proportion of counties in\n each rate of change bracket",
-         x = "Rate of change",
-         y= "")+
-    scale_y_continuous(limits=c(0,1),
-                       breaks=c(0, .25, .50, 0.75, 1),
-                       expand = c(0, 0))
-
 
 # USA map with probability of risk changed rate category
 us_county = map_data("county")
@@ -147,11 +109,54 @@ fig_changedProb_map = ggplot(data = county_changeProb_map,
                         #            "80%-100%")) +
                       limits = c("0%-9.9%", "10%-19.9%",
                                  "20%-29.9%", "30%-39.9%",
-                                 "40%-49.9%", "50%-59.9%", "NA"))+
+                                 "40%-49.9%", "50%-59.9%", "Not availble data"))+
                       # limits = c("0%-14.9%", "15%-29.9%",
                       #            "30%-44.9%", "45%-60%")) +
     theme_void()+
     theme(text = element_text(size = 14))
+
+
+
+
+changeProb_proportion = county_changeProb_map %>%
+    group_by(category) %>%
+    summarize( n = n()) %>%
+    mutate(total = sum(n)) %>%
+    mutate(proportion = round(n/total, digit = 3))
+
+
+# bar plot for proportion of counties with different change propability
+fig_changedProb_proportion = ggplot(data = changeProb_proportion,
+                                    aes(x = category,
+                                        fill = category)) + 
+    geom_col(aes(y = proportion),
+             color = "black",
+             show.legend = FALSE)+
+    scale_fill_manual(name = "Rate of change", 
+                      #values = c("#ffffcc", "#fed976", "#fd8d3c"),
+                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026"),
+                      # values = c("#ffffb2", "#fecc5c", "#fd8d3c","#e31a1c"),
+                      
+                      drop = FALSE,
+                      # limits = c("0%-19.9%", "20%-39.9%",
+                      #            "40%-59.9%")) +
+                      limits = c("0%-9.9%", "10%-19.9%",
+                                 "20%-29.9%", "30%-39.9%",
+                                 "40%-49.9%", "50%-59.9%")) +
+    # limits = c("0%-14.9%", "15%-29.9%",
+    #            "30%-44.9%", "45%-60%")) +
+    
+    theme_classic()+
+    theme(text = element_text(size = 14),
+          axis.text.x = element_text(angle = 45, hjust =1)) + 
+    labs(title = "\nC) Proportion of counties in\n each rate of change bracket",
+         x = "Rate of change",
+         y= "")+
+    scale_y_continuous(limits=c(0,1),
+                       breaks=c(0, .25, .50, 0.75, 1),
+                       expand = c(0, 0))
+
+
 
 
 

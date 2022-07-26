@@ -18,7 +18,7 @@ days = sort(unique(community_level_LMH_supp1$date))
 data(county.fips)
 
 county.fips = county.fips %>%
-    mutate(state = sub(pattern = ",.*" , 
+    mutate(state = sub(pattern = ",.*" ,
                        replacement = "",
                        x = polyname))
 
@@ -36,40 +36,80 @@ changeProb_calculate = community_level_LMH_supp1 %>%
               total_week = sum(!is.na(is_changed)),
               prob_risk_changed = round(change_week/total_week,
                                         digits = 3 )) %>%
-    # mutate(category = cut(prob_risk_changed,
-    #                       breaks = c(-Inf, .2, .40, .60, .80, 1),
-    #                       labels = c("0%-19.9%", "20%-39.9%",
-    #                                  "40%-59.9%", "60%-79.9%",
-    #                                  "80%-100%")))
     mutate(category = cut(prob_risk_changed,
                           breaks = c(-Inf, .1, .20, .30, .40, .5, .6),
                           labels = c("0%-9.9%", "10%-19.9%",
                                      "20%-29.9%", "30%-39.9%",
                                      "40%-49.9%", "50%-59.9%")))
-# mutate(category = cut(prob_risk_changed,
-#                       breaks = c(-Inf, .15, .30, .45, .60),
-#                       labels = c("0%-14.9%", "15%-29.9%",
-#                                   "30%-44.9%", "45%-60%")))
+
 
 
 
 changeProb = changeProb_calculate %>%
-    rename("fips" = fips_code) %>%
-    mutate(state = tolower(abbr2state(state))) %>%
+    mutate(state = abbr2state(state)) %>%
     dplyr::select(state,
-                  fips,
-                  category) %>%
-    left_join(county.fips, by = c("state", "fips")) %>%
-    ungroup() %>%
-    dplyr::select(polyname,
+                  fips_code,
                   category)
 
 
-changeProb_proportion = changeProb_calculate %>%
+
+
+# USA map with different probability of change in community risk level
+# getting counties map geometry and merge it with different probability of change in community risk level
+countyGeo = get_acs(geography = "county",
+                    variable = "B01001_001",
+                    geometry = TRUE) %>%
+    shift_geometry() %>%
+    mutate(fips_code = as.numeric(GEOID),
+           state = gsub(pattern = ".*County, |.*Parish, |.*Borough, |.*Area, |.*city, |.*City, |.*District of Columbia, |.*Municipality, ",
+                       replacement = "",
+                       x = NAME)) %>%
+    filter(!grepl("Puerto Rico", state)) %>%
+    left_join(changeProb, by = c("state", "fips_code")) 
+    
+    
+# (B) Map of the state with its counties rate of change 
+fig_changedProb_map_supp1 = ggplot(data = countyGeo) + 
+    geom_sf(aes(geometry = geometry,
+                fill = category),
+            size = 0.05) + 
+    # geom_sf_text(aes(geometry = geometry,
+    #                  label = county),
+    #             size = 3,
+    #             alpha = .5)+
+    ggthemes::theme_map() + 
+    theme(legend.position = "right") + 
+    labs(title = "\n\n B) Counties with different probability of change in community risk level \n(suppressed = 1)",
+         subtitle = "")+
+    scale_fill_manual(name = "Rate of change", 
+                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026", "#7E7E7E"),
+                      drop = TRUE,
+                      limits = c("0%-9.9%", "10%-19.9%",
+                                 "20%-29.9%", "30%-39.9%",
+                                 "40%-49.9%", "50%-59.9%", "No data"))+
+    theme(text = element_text(size = 14)) 
+
+
+
+
+
+
+changeProb_proportion = get_acs(geography = "county",
+                    variable = "B01001_001",
+                    geometry = FALSE) %>%
+    mutate(fips_code = as.numeric(GEOID),
+           state = gsub(pattern = ".*County, |.*Parish, |.*Borough, |.*Area, |.*city, |.*City, |.*District of Columbia, |.*Municipality, ",
+                        replacement = "",
+                        x = NAME)) %>%
+    filter(!grepl("Puerto Rico", state)) %>%
+    left_join(changeProb, by = c("state", "fips_code")) %>%
     group_by(category) %>%
     summarize( n = n()) %>%
     mutate(total = sum(n)) %>%
-    mutate(proportion = round(n/total, digit = 3))
+    mutate(proportion = round(n/total, digit = 3)) %>%
+    mutate(category = as.character(category),
+           category = if_else(is.na(category), "No data", category))
+
 
 
 # bar plot for proportion of counties with different change propability
@@ -104,50 +144,8 @@ fig_changedProb_proportion_supp1 = ggplot(data = changeProb_proportion,
                        expand = c(0, 0))
 
 
-# USA map with probability of risk changed rate category
-us_county = map_data("county")
-us_state = map_data("state")
 
 
-us_county = us_county %>%
-    mutate(polyname = paste(region, subregion, sep=","))
-
-county_changeProb_map = left_join(us_county, changeProb,
-                                  by = "polyname")
-
-fig_changedProb_map_supp1 = ggplot(data = county_changeProb_map,
-                                   mapping = aes(x = long,
-                                                 y = lat, 
-                                                 group = group,
-                                                 fill = category))+
-    geom_polygon(color = "#636363",
-                 size = 0.05) +
-    geom_polygon(data = us_state,
-                 mapping = aes(long,
-                               lat,
-                               group = group),
-                 fill = NA, 
-                 color = "black",
-                 size = .3) +
-    coord_equal()+
-    labs(title = "  B) Counties with different probability of change in community risk level  (suppressed = 1)",
-         subtitle = "")+
-    scale_fill_manual(name = "Rate of change", 
-                      #values = c("#ffffcc", "#fed976", "#fd8d3c", "#e31a1c", "#800026"),
-                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026", "#7E7E7E"),
-                      # values = c("#ffffb2", "#fecc5c", "#fd8d3c","#e31a1c"),
-                      
-                      drop = TRUE,
-                      # limits = c("0%-19.9%", "20%-39.9%",
-                      #            "40%-59.9%", "60%-79.9%",
-                      #            "80%-100%")) +
-                      limits = c("0%-9.9%", "10%-19.9%",
-                                 "20%-29.9%", "30%-39.9%",
-                                 "40%-49.9%", "50%-59.9%", "NA"))+
-    # limits = c("0%-14.9%", "15%-29.9%",
-    #            "30%-44.9%", "45%-60%")) +
-    theme_void()+
-    theme(text = element_text(size = 14))
 
 
 

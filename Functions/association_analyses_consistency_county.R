@@ -13,7 +13,7 @@ library(ggpubr)
 census_api_key("7e83aa1d195fd7cd921e4ac747998c618f05460d")
 
 
-# getting counties population 
+# getting counties population from the American Community Survey (ACS) 2020
 county_pop = get_acs(geography = "county",
                      variable = "B01001_001",
                      geometry = FALSE) %>%
@@ -610,7 +610,7 @@ ggsave("Result/Figures/fig_POPPCT_RURAL_probChange_point_facet.jpg",
 # USA map with NCHS Urban-Rural Classification
 # getting counties map geometry and merge it with NCHS Urban-Rural Classification
 countyGeo = get_acs(geography = "county",
-                   variable = "B04004_001",
+                   variable = "B01001_001",
                    geometry = TRUE) %>%
     shift_geometry() %>%
     mutate(fips_code = as.numeric(GEOID),
@@ -643,4 +643,118 @@ fig_changedProb_NCHS_map = ggplot(data = countyGeo) +
 ggsave("Result/Figures/fig_changedProb_NCHS_map.jpg",
        fig_changedProb_NCHS_map, 
        height=4,width=8,scale=1.65)
+
+
+
+
+# NA value and population
+load("Result/changeProb_calculate.RDA")
+
+# getting population data from american community survey 2020 
+county_population_NA = get_acs(geography = "county",
+                               variable = "B01001_001",
+                               geometry = FALSE) %>%
+    mutate(fips_code = as.numeric(GEOID),
+           state = sub(pattern = ".*County, ",
+                       replacement = "",
+                       x = NAME),
+           state = state2abbr(state)) %>%
+    rename(population = estimate) %>%
+    left_join(changeProb_calculate, by = c("state", "fips_code")) 
+
+county_population_bar = county_population_NA %>% 
+    group_by(category) %>%
+    summarize(population = sum(population)) %>%
+    mutate(total_pop = sum(population),
+           population_ratio = round((population / total_pop), digit = 4))
+
+
+fig_category_population_ratio_bar = ggplot(data = county_population_bar,
+                                     aes(x = category,
+                                         y = population_ratio)) +
+    geom_col(fill="steelblue") +
+    geom_text(aes(label = scales::percent(population_ratio)),
+              vjust=1.6,
+              size=3.5)+
+    theme_minimal()+
+    labs(title = "The population ratio of counties in different categoris")
+
+
+ggsave("Result/Figures/fig_category_population_ratio_bar.jpg",
+       fig_category_population_ratio_bar, 
+       height=4,width=8,scale=1.65)
+
+
+fig_category_population_ratio_hist = county_population_NA %>%
+    filter(is.na(category)) %>%
+    ggplot(aes(x = population)) +
+    geom_histogram(fill="steelblue",
+                   color = "black") +
+    theme_minimal() +
+    labs(title = "The population distribution of counties with No available data")
+
+ggsave("Result/Figures/fig_category_population_ratio_hist.jpg",
+       fig_category_population_ratio_hist, 
+       height=4,width=8,scale=1.65)
+
+
+fig_category_population_ratio_box = county_population_NA %>%
+    mutate(is_na = as.factor(if_else(is.na(category), "No Data", "Available Data"))) %>%
+    ggplot(aes(x = log(population),
+               color = is_na)
+               ) +
+    geom_boxplot() +
+    theme_minimal() +
+    labs(title = "The log population of counties with and without availble data")
+
+ggsave("Result/Figures/fig_category_population_ratio_box.jpg",
+       fig_category_population_ratio_box, 
+       height=4,width=8,scale=1.65)
+
+
+
+
+# bar plot for proportion of counties with different change propability
+fig_changedProb_proportion = ggplot(data = changeProb_proportion,
+                                    aes(x = category,
+                                        fill = category)) + 
+    geom_col(aes(y = proportion),
+             color = "black",
+             show.legend = FALSE)+
+    scale_fill_manual(name = "Rate of change", 
+                      #values = c("#ffffcc", "#fed976", "#fd8d3c"),
+                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026"),
+                      # values = c("#ffffb2", "#fecc5c", "#fd8d3c","#e31a1c"),
+                      
+                      drop = FALSE,
+                      # limits = c("0%-19.9%", "20%-39.9%",
+                      #            "40%-59.9%")) +
+                      limits = c("0%-9.9%", "10%-19.9%",
+                                 "20%-29.9%", "30%-39.9%",
+                                 "40%-49.9%", "50%-59.9%")) +
+    # limits = c("0%-14.9%", "15%-29.9%",
+    #            "30%-44.9%", "45%-60%")) +
+    
+    theme_classic()+
+    theme(text = element_text(size = 14),
+          axis.text.x = element_text(angle = 45, hjust =1)) + 
+    labs(title = "\nC) Proportion of counties in\n each rate of change bracket",
+         x = "Rate of change",
+         y= "")+
+    scale_y_continuous(limits=c(0,1),
+                       breaks=c(0, .25, .50, 0.75, 1),
+                       expand = c(0, 0))
+
+
+countyGeo_population = get_acs(geography = "county",
+                               variable = "B04004_001",
+                               geometry = TRUE) %>%
+    shift_geometry() %>%
+    mutate(fips_code = as.numeric(GEOID),
+           state = sub(pattern = ".*County, ",
+                       replacement = "",
+                       x = NAME),
+           state = state2abbr(state)) %>%
+    left_join(changeProb_calculate, by = c("state", "fips_code"))
+
 
