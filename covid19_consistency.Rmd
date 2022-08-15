@@ -1,0 +1,96 @@
+---
+title: " "
+author: ""
+date: ""
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include = FALSE, echo = FALSE}
+# load libraries
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(usdata)
+library(gridExtra)
+library(tidycensus)
+library(sf)
+library(tigris)
+```
+
+
+## Community COVID-19 risk level consistency rates over time
+
+#### 2 weeks interval
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/compare_consisRate_2week_LMH.jpg")
+```
+
+
+#### 3 weeks interval
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/compare_consisRate_3week_LMH.jpg")
+```
+
+
+#### 4 weeks interval
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/compare_consisRate_4week_LMH.jpg")
+
+```
+
+
+\newpage
+
+## Community risk level consistency rates with alternative threshold for low risk level
+
+#### 2 weeks interval
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/compare_consisRate_2week_LMH_MT.jpg")
+```
+
+
+#### 3 weeks interval
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/compare_consisRate_3week_LMH_MT.jpg")
+```
+
+
+#### 4 weeks interval
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/compare_consisRate_4week_LMH_MT.jpg")
+
+```
+
+\newpage
+
+## Weekly variation in county COVID-19 community risk level
+
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/fig_combine_variation_LMH.jpg")
+```
+
+
+\newpage
+
+## Community risk level consistency rates for each NCHS Urban-Rural Category
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/compare_consis_NHCS_3week_LMH.jpg")
+
+```
+
+
+
+\newpage
+
+```{r echo=FALSE}
+knitr::include_graphics("Result/Figures/table.png")
+
+```
+
+
+
