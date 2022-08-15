@@ -5,15 +5,18 @@ library(usdata)
 library(maps)
 library(stringr)
 library(gridExtra)
+library(tigris)
+library(tidycensus)
+census_api_key("7e83aa1d195fd7cd921e4ac747998c618f05460d")
 
 
 
 # LOW MEDIUM HIGH 
-load("Result/CDC_community_level_county_computed_low_medium_high_suppNA.RDA")
+load("Result/CDC_community_level_county_computed_low_medium_high.RDA")
 
 
 # days list
-days = sort(unique(community_level_LMH_suppNA$date))
+days = sort(unique(community_level_LMH$date))
 
 data(county.fips)
 
@@ -23,7 +26,7 @@ county.fips = county.fips %>%
                        x = polyname))
 
 
-changeProb_calculate = community_level_LMH_suppNA %>%
+changeProb_calculate = community_level_LMH %>%
     dplyr::select(date,
                   state,
                   fips_code,
@@ -69,7 +72,7 @@ countyGeo = get_acs(geography = "county",
 
 
 # (B) Map of the state with its counties rate of change 
-fig_changedProb_map_suppNA = ggplot(data = countyGeo) + 
+fig_changedProb_map = ggplot(data = countyGeo) + 
     geom_sf(aes(geometry = geometry,
                 fill = category),
             size = 0.05) + 
@@ -79,7 +82,7 @@ fig_changedProb_map_suppNA = ggplot(data = countyGeo) +
     #             alpha = .5)+
     ggthemes::theme_map() + 
     theme(legend.position = "right") + 
-    labs(title = "\n\n B) Counties with different probability of change in community risk level \n(suppressed = NA)",
+    labs(title = "\n\n       B) Counties with different rate of change in community risk level \n",
          subtitle = "")+
     scale_fill_manual(name = "Rate of change", 
                       values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026", "#7E7E7E"),
@@ -112,8 +115,8 @@ changeProb_proportion = get_acs(geography = "county",
 
 
 
-# bar plot for proportion of counties with different change propability
-fig_changedProb_proportion_suppNA = ggplot(data = changeProb_proportion,
+# bar plot for proportion of counties with different change of rate
+fig_changedProb_proportion = ggplot(data = changeProb_proportion,
                                           aes(x = category,
                                               fill = category)) + 
     geom_col(aes(y = proportion),
@@ -136,7 +139,7 @@ fig_changedProb_proportion_suppNA = ggplot(data = changeProb_proportion,
     theme_classic()+
     theme(text = element_text(size = 14),
           axis.text.x = element_text(angle = 45, hjust =1)) + 
-    labs(title = "\nC) Proportion of counties in\n each rate of change bracket \n(suppressed = NA)",
+    labs(title = "\nC) Proportion of counties in\n each rate of change bracket \n",
          x = "Rate of change",
          y= "")+
     scale_y_continuous(limits=c(0,1),
@@ -151,10 +154,10 @@ fig_changedProb_proportion_suppNA = ggplot(data = changeProb_proportion,
 
 # rate of change in 3 weeks
 # county list
-community_level_stateFips_LMH_suppNA = community_level_LMH_suppNA %>%
+community_level_stateFips_LMH = community_level_LMH %>%
     mutate(stateFips = paste(state, fips_code, sep = ","))
 
-stateFips_list = unique(community_level_stateFips_LMH_suppNA$stateFips)
+stateFips_list = unique(community_level_stateFips_LMH$stateFips)
 
 
 # full list of counties and dates
@@ -164,8 +167,8 @@ full_county_date = data.frame(stateFips = rep(stateFips_list, each = length(days
 
 # merge datasets and compute the proportion of couties that their community risk
 # level changes for the next week
-weekly_variation_LMH_suppNA = full_county_date %>%
-    left_join(community_level_stateFips_LMH_suppNA,
+weekly_variation_LMH = full_county_date %>%
+    left_join(community_level_stateFips_LMH,
               by = c("stateFips", "date")) %>%
     select(date,
            stateFips,
@@ -182,7 +185,7 @@ weekly_variation_LMH_suppNA = full_county_date %>%
 
 
 ##### line plot weekly variation ####
-fig_weekly_variation_line_LMH_suppNA = ggplot(data = weekly_variation_LMH_suppNA,
+fig_weekly_variation_line_LMH = ggplot(data = weekly_variation_LMH,
                                              aes(x = date,
                                                  y = weekly_variation))+
     geom_smooth(method = "lm",
@@ -191,7 +194,7 @@ fig_weekly_variation_line_LMH_suppNA = ggplot(data = weekly_variation_LMH_suppNA
                 size = 1,
                 color = "black")+
     geom_point(alpha = .4,color = "steelblue")+
-    labs(title = "A) Weekly variation in county community risk level (suppressed = NA)",
+    labs(title = "A) Weekly variation in county community risk level",
          x = NULL,
          y = "Proportion of counties")+
     scale_y_continuous(limits=c(0,1),
@@ -205,8 +208,8 @@ fig_weekly_variation_line_LMH_suppNA = ggplot(data = weekly_variation_LMH_suppNA
 
 
 ##### proportion of counties that will change risk level at least once within last two weeks.#####
-change_risk_in3week_line_LMH_suppNA = full_county_date %>%
-    left_join(community_level_stateFips_LMH_suppNA,
+change_risk_in3week_line_LMH = full_county_date %>%
+    left_join(community_level_stateFips_LMH,
               by = c("stateFips", "date")) %>%
     select(date,
            stateFips,
@@ -231,10 +234,10 @@ change_risk_in3week_line_LMH_suppNA = full_county_date %>%
 
 ###### combine change in 3 weeks and weekly variation ##### 
 
-combine_change3week_variation_LMH_suppNA = change_risk_in3week_line_LMH_suppNA %>%
+combine_change3week_variation_LMH = change_risk_in3week_line_LMH %>%
     select(date,
            variation_in3week) %>%
-    left_join(weekly_variation_LMH_suppNA, by = "date") %>%
+    left_join(weekly_variation_LMH, by = "date") %>%
     select(date,
            variation_in3week,
            weekly_variation) %>%
@@ -245,7 +248,7 @@ combine_change3week_variation_LMH_suppNA = change_risk_in3week_line_LMH_suppNA %
 
 
 
-fig_combine_change3week_variation_LMH_suppNA = ggplot(data = combine_change3week_variation_LMH_suppNA,
+fig_combine_change3week_variation_LMH = ggplot(data = combine_change3week_variation_LMH,
                                                      aes(x = date,
                                                          y = rate,
                                                          color = variation))+
@@ -255,7 +258,7 @@ fig_combine_change3week_variation_LMH_suppNA = ggplot(data = combine_change3week
     #             size = 1)+
     geom_line(size = 1)+
     geom_point(alpha = .4)+
-    labs(title = "A) Proportion of counties with change in COVID-19 community risk level (suppressed = NA)",
+    labs(title = "A) Proportion of counties with change in COVID-19 community risk level",
          x = NULL,
          y = "Proportion of counties")+
     scale_y_continuous(limits=c(0,1),
@@ -274,15 +277,19 @@ fig_combine_change3week_variation_LMH_suppNA = ggplot(data = combine_change3week
 
 
 
-fig_combine_variation_LMH_suppNA = grid.arrange(fig_combine_change3week_variation_LMH_suppNA,
-                                               fig_changedProb_map_suppNA,
-                                               fig_changedProb_proportion_suppNA,
+fig_combine_variation_LMH = grid.arrange(fig_combine_change3week_variation_LMH,
+                                               fig_changedProb_map,
+                                               fig_changedProb_proportion,
                                                ncol = 10,
-                                               nrow = 3,
-                                               layout_matrix = rbind(c(NA,rep(1,17),NA,NA),
+                                               nrow = 6,
+                                               layout_matrix = rbind(c(rep(1,20)),
+                                                                     c(rep(1,20)),
+                                                                     c(rep(2,14),rep(NA, 6)),
+                                                                     c(rep(2,14),rep(3, 6)),
                                                                      c(rep(2,14),rep(3, 6)),
                                                                      c(rep(2,14),rep(3, 6))))
-ggsave("Result/Figures/fig_combine_variation_LMH_suppNA.jpg",
-       fig_combine_variation_LMH_suppNA, 
-       height=4,width=8,scale=1.65)
+ggsave("Result/Figures/fig_combine_variation_LMH.jpg",
+       fig_combine_variation_LMH, 
+       height=6,width=8,scale=1.65)
+
 
