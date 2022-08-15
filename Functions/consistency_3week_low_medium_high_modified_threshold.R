@@ -89,31 +89,49 @@ fig_consis_3week_line_LMH_MT = ggplot(data = consis_3week_LMH_MT,
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
     scale_x_date(date_labels = "(%b) %Y",
-                 date_breaks = "89 days",
+                 date_breaks = "180 days",
                  expand = c(0, 0))+
     theme_classic()+
     theme(text = element_text(size = 14))
 
 
 ### box plot for each community risk level
+means = aggregate(consisRate ~  community_level,
+                  consis_3week_LMH_MT,
+                  mean) %>%
+    mutate(consisRate = round(consisRate, 2))
+
+
+
 fig_consis_3week_box_LMH_MT = ggplot(data = consis_3week_LMH_MT,
                                  aes(x = community_level,
                                      y = consisRate,
                                      fill = community_level)) +
     geom_boxplot(alpha=.4) +
     scale_fill_manual(values = c("#e41a1c", "#dadd00", "#386cb0"))+
-    geom_jitter( alpha=.2, width = .015, size = 1)+
+    #geom_jitter( alpha=.2, width = .015, size = 1)+
     theme_classic()+
     theme(text = element_text(size = 14),
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()) +
-    labs(title = "B) 3-week community risk level \nconsistency rates with alternative \nthreshold for low risk level",
+    labs(title = "B) Distributions of 3-week \ncommunity risk level \nconsistency rates with alternative \nthreshold for low risk level",
          y = "Consistency Rate",x = NULL) +
     guides(fill=guide_legend(title="Community Level"))+
     scale_y_continuous(limits=c(0,1),
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
-    scale_x_discrete()
+    scale_x_discrete()+
+    stat_summary(fun=mean,
+                 colour="black",
+                 geom="point", 
+                 shape=18,
+                 size=3,
+                 show.legend=FALSE) + 
+    geom_text(data = means,
+              aes(label = consisRate,
+                  y = consisRate + 0.08))
+
+
 
 
 ### Total consistency rate (line)
@@ -175,3 +193,14 @@ save(consis_3week_LMH_MT,
      fig_consis_3week_total_box_LMH_MT,
      fig_county_3week_proportion_line_LMH_MT,
      file = "Result/consistency_3week_low_medium_high_modified_threshold.Rda")
+
+
+compare_consisRate_3week_LMH_MT = grid.arrange(fig_consis_3week_line_LMH_MT,
+                                            fig_consis_3week_box_LMH_MT,
+                                            nrow = 1,
+                                            ncol = 3,
+                                            layout_matrix = rbind(c(1,1,2)))
+
+ggsave("Result/Figures/compare_consisRate_3week_LMH_MT.jpg",
+       compare_consisRate_3week_LMH_MT, 
+       height=2,width=8,scale=1.65)

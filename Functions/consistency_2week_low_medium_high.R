@@ -86,20 +86,26 @@ fig_consis_2week_line_LMH = ggplot(data = consis_2week_LMH,
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
     scale_x_date(date_labels = "(%b) %Y",
-                 date_breaks = "89 days",
+                 date_breaks = "180 days",
                  expand = c(0, 0))+
     theme_classic()+
     theme(text = element_text(size = 14))
 
 
 ### box plot for each community risk level
+means = aggregate(consisRate ~  community_level,
+                  consis_2week_LMH,
+                  mean) %>%
+    mutate(consisRate = round(consisRate, 2))
+
+
 fig_consis_2week_box_LMH = ggplot(data = consis_2week_LMH,
                                  aes(x = community_level,
                                      y = consisRate,
                                      fill = community_level)) +
     geom_boxplot(alpha=.4) +
     scale_fill_manual(values = c("#e41a1c", "#dadd00", "#386cb0"))+
-    geom_jitter( alpha=.2, width = .015, size = 1)+
+    #geom_jitter( alpha=.2, width = .015, size = 1)+
     theme_classic()+
     theme(text = element_text(size = 14),
           axis.ticks.x = element_blank(),
@@ -110,7 +116,16 @@ fig_consis_2week_box_LMH = ggplot(data = consis_2week_LMH,
     scale_y_continuous(limits=c(0,1),
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
-    scale_x_discrete()
+    scale_x_discrete()+
+    stat_summary(fun=mean,
+                                   colour="black",
+                                   geom="point", 
+                                   shape=18,
+                                   size=3,
+                                   show.legend=FALSE) + 
+    geom_text(data = means,
+              aes(label = consisRate,
+                  y = consisRate + 0.08))
 
 
 
@@ -186,3 +201,14 @@ save(consis_2week_LMH,
      fig_consis_2week_total_box_LMH,
      fig_county_2week_proportion_line_LMH,
      file = "Result/consistency_2week_low_medium_high.Rda")
+
+
+compare_consisRate_2week_LMH = grid.arrange(fig_consis_2week_line_LMH,
+                                            fig_consis_2week_box_LMH,
+                                            nrow = 1,
+                                            ncol = 3,
+                                            layout_matrix = rbind(c(1,1,2)))
+
+ggsave("Result/Figures/compare_consisRate_2week_LMH.jpg",
+       compare_consisRate_2week_LMH, 
+       height=2,width=8,scale=1.65)
