@@ -68,7 +68,7 @@ countyGeo = get_acs(geography = "county",
     left_join(changeProb, by = c("state", "fips_code")) 
 
 
-# (B) Map of the state with its counties rate of change 
+# (D) Map of the state with its counties rate of change 
 fig_changedProb_map_supp3 = ggplot(data = countyGeo) + 
     geom_sf(aes(geometry = geometry,
                 fill = category),
@@ -79,7 +79,7 @@ fig_changedProb_map_supp3 = ggplot(data = countyGeo) +
     #             alpha = .5)+
     ggthemes::theme_map() + 
     theme(legend.position = "right") + 
-    labs(title = "\n\n B) Counties with different probability of change in community risk level \n(suppressed = 3)",
+    labs(title = "\n\n D) Counties with different rate of change in community risk level \n(suppressed = 3)",
          subtitle = "")+
     scale_fill_manual(name = "Rate of change", 
                       values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026", "#7E7E7E"),
@@ -136,7 +136,7 @@ fig_changedProb_proportion_supp3 = ggplot(data = changeProb_proportion,
     theme_classic()+
     theme(text = element_text(size = 14),
           axis.text.x = element_text(angle = 45, hjust =1)) + 
-    labs(title = "\nC) Proportion of counties in\n each rate of change bracket \n(suppressed = 3)",
+    labs(title = "\nE) Proportion of counties in\n each rate of change bracket \n(suppressed = 3)",
          x = "Rate of change",
          y= "")+
     scale_y_continuous(limits=c(0,1),
@@ -191,7 +191,7 @@ fig_weekly_variation_line_LMH_supp3 = ggplot(data = weekly_variation_LMH_supp3,
                 size = 1,
                 color = "black")+
     geom_point(alpha = .4,color = "steelblue")+
-    labs(title = "A) Weekly variation in county community risk level (suppressed = 3)",
+    labs(title = "C) Weekly variation in county community risk level (suppressed = 3)",
          x = NULL,
          y = "Proportion of counties")+
     scale_y_continuous(limits=c(0,1),
@@ -255,14 +255,14 @@ fig_combine_change3week_variation_LMH_supp3 = ggplot(data = combine_change3week_
     #             size = 1)+
     geom_line(size = 1)+
     geom_point(alpha = .4)+
-    labs(title = "A) Proportion of counties with change in COVID-19 community risk level (suppressed = 3)",
+    labs(title = "C) Proportion of counties with change in COVID-19 community risk level (suppressed = 3)",
          x = NULL,
          y = "Proportion of counties")+
     scale_y_continuous(limits=c(0,1),
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
-    scale_x_date(date_labels = "%b %Y",
-                 date_breaks = "89 days",
+    scale_x_date(date_labels = "(%b) %Y",
+                 date_breaks = "180 days",
                  expand = c(0, 0))+
     theme_classic()+
     theme(text = element_text(size = 14))+
@@ -286,3 +286,22 @@ ggsave("Result/Figures/fig_combine_variation_LMH_supp3.jpg",
        fig_combine_variation_LMH_supp3, 
        height=4,width=8,scale=1.65)
 
+
+# merge with consistency rate plots
+# load consistency figures
+load("Result/consistency_3week_low_medium_high_supp3.Rda")
+
+fig_combine_LMH_supp3 = grid.arrange(fig_consis_3week_line_LMH_supp3,
+                                     fig_consis_3week_box_LMH_supp3,
+                                     fig_combine_change3week_variation_LMH_supp3,
+                                     fig_changedProb_map_supp3,
+                                     fig_changedProb_proportion_supp3,
+                                     ncol = 10,
+                                     nrow = 4,
+                                     layout_matrix = rbind(c(rep(1,14),rep(2, 6)),
+                                                           c(rep(3,14),rep(2, 6)),
+                                                           c(rep(4,14),rep(5, 6)),
+                                                           c(rep(4,14),rep(5, 6))))
+ggsave("Result/Figures/fig_combine_LMH_supp3.jpg",
+       fig_combine_LMH_supp3, 
+       height=7,width=9,scale=1.65)

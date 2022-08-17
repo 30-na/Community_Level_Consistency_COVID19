@@ -82,7 +82,7 @@ fig_changedProb_map = ggplot(data = countyGeo) +
     #             alpha = .5)+
     ggthemes::theme_map() + 
     theme(legend.position = "right") + 
-    labs(title = "\n\n       B) Counties with different rate of change in community risk level \n",
+    labs(title = "\n\n B) Counties with different rate of change in community risk level \n",
          subtitle = "")+
     scale_fill_manual(name = "Rate of change", 
                       values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026", "#7E7E7E"),
@@ -278,18 +278,15 @@ fig_combine_change3week_variation_LMH = ggplot(data = combine_change3week_variat
 
 
 fig_combine_variation_LMH = grid.arrange(fig_combine_change3week_variation_LMH,
-                                               fig_changedProb_map,
-                                               fig_changedProb_proportion,
-                                               ncol = 10,
-                                               nrow = 6,
-                                               layout_matrix = rbind(c(rep(1,20)),
-                                                                     c(rep(1,20)),
-                                                                     c(rep(2,14),rep(NA, 6)),
-                                                                     c(rep(2,14),rep(3, 6)),
-                                                                     c(rep(2,14),rep(3, 6)),
-                                                                     c(rep(2,14),rep(3, 6))))
+                                                fig_changedProb_map,
+                                                fig_changedProb_proportion,
+                                                ncol = 10,
+                                                nrow = 3,
+                                                layout_matrix = rbind(c(NA,rep(1,17),NA,NA),
+                                                                      c(rep(2,14),rep(3, 6)),
+                                                                      c(rep(2,14),rep(3, 6))))
 ggsave("Result/Figures/fig_combine_variation_LMH.jpg",
        fig_combine_variation_LMH, 
-       height=6,width=8,scale=1.65)
+       height=4,width=8,scale=1.65)
 
 
