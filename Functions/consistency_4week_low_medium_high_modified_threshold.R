@@ -102,6 +102,11 @@ fig_consis_4week_line_LMH_MT = ggplot(data = consis_4week_LMH_MT,
 
 
 ### box plot for each community risk level
+means = aggregate(consisRate ~  community_level,
+                  consis_4week_LMH_MT,
+                  mean) %>%
+    mutate(consisRate = round(consisRate, 2))
+
 fig_consis_4week_box_LMH_MT = ggplot(data = consis_4week_LMH_MT,
                                           aes(x = community_level,
                                               y = consisRate,
