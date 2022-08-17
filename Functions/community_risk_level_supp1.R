@@ -6,7 +6,7 @@ library(scales)
 library(tidyr)
 
 
-# NA Suppressed
+# Suppressed = 1
 ######################
 # load datasets
 load("Result/hospital_utilization_supp1_county.RDA")
