@@ -69,8 +69,54 @@ pctUR = pctUR_file %>%
 
 
 # load consistency data
-load("Result/changeProb_calculate.RDA")
+load("Result/CDC_community_level_county_computed_low_medium_high.RDA")
 
+#########
+# rate of change in 3 weeks
+# days list
+days = sort(unique(community_level_LMH$date))
+
+# county list
+community_level_stateFips_LMH = community_level_LMH %>%
+    mutate(stateFips = paste(state, fips_code, sep = ","))
+
+stateFips_list = unique(community_level_stateFips_LMH$stateFips)
+
+
+# full list of counties and dates
+full_county_date = data.frame(stateFips = rep(stateFips_list, each = length(days)),
+                              date = rep(days, times = length(stateFips_list)))
+
+
+# merge datasets and compute the proportion of couties that their community risk
+# level changes for the next week
+changeProb_calculate = full_county_date %>%
+    left_join(community_level_stateFips_LMH,
+              by = c("stateFips", "date")) %>%
+    select(date,
+           stateFips,
+           state,
+           fips_code,
+           community_level) %>%
+    mutate(community_level = factor(community_level,
+                                    levels = c("Low", "Medium", "High"))) %>%
+    arrange(stateFips,
+            date) %>%
+    group_by(stateFips)%>%
+    mutate(last_1week = lag(community_level)) %>%
+    mutate(last_2week = lag(last_1week)) %>%
+    mutate(is_changed = ifelse(last_1week == last_2week & 
+                                   community_level == last_1week, 0, 1)) %>%
+    mutate(is_changed = ifelse(is.na(community_level) |
+                                   is.na(last_1week) |
+                                   is.na(last_2week), NA, is_changed)) %>%
+    group_by(state, fips_code) %>%
+    summarize(change_week = sum(is_changed, na.rm = TRUE),
+              total_week = sum(!is.na(is_changed)),
+              prob_risk_changed = round(change_week/total_week,
+                                        digits = 3 ))
+              
+########
 
 # load the number of hospitals in each county
 
@@ -713,48 +759,5 @@ ggsave("Result/Figures/fig_category_population_ratio_box.jpg",
 
 
 
-
-# bar plot for proportion of counties with different change propability
-fig_changedProb_proportion = ggplot(data = changeProb_proportion,
-                                    aes(x = category,
-                                        fill = category)) + 
-    geom_col(aes(y = proportion),
-             color = "black",
-             show.legend = FALSE)+
-    scale_fill_manual(name = "Rate of change", 
-                      #values = c("#ffffcc", "#fed976", "#fd8d3c"),
-                      values = c("#ffffb2", "#fed976", "#feb24c","#fd8d3c", "#f03b20", "#bd0026"),
-                      # values = c("#ffffb2", "#fecc5c", "#fd8d3c","#e31a1c"),
-                      
-                      drop = FALSE,
-                      # limits = c("0%-19.9%", "20%-39.9%",
-                      #            "40%-59.9%")) +
-                      limits = c("0%-9.9%", "10%-19.9%",
-                                 "20%-29.9%", "30%-39.9%",
-                                 "40%-49.9%", "50%-59.9%")) +
-    # limits = c("0%-14.9%", "15%-29.9%",
-    #            "30%-44.9%", "45%-60%")) +
-    
-    theme_classic()+
-    theme(text = element_text(size = 14),
-          axis.text.x = element_text(angle = 45, hjust =1)) + 
-    labs(title = "\nC) Proportion of counties in\n each rate of change bracket",
-         x = "Rate of change",
-         y= "")+
-    scale_y_continuous(limits=c(0,1),
-                       breaks=c(0, .25, .50, 0.75, 1),
-                       expand = c(0, 0))
-
-
-countyGeo_population = get_acs(geography = "county",
-                               variable = "B04004_001",
-                               geometry = TRUE) %>%
-    shift_geometry() %>%
-    mutate(fips_code = as.numeric(GEOID),
-           state = sub(pattern = ".*County, ",
-                       replacement = "",
-                       x = NAME),
-           state = state2abbr(state)) %>%
-    left_join(changeProb_calculate, by = c("state", "fips_code"))
 
 
