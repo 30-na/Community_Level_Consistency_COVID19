@@ -157,7 +157,7 @@ names(merged_changeRate)
 
 
 
-# county population and probability of change
+# county population and rate of change
 fig_pop_2020_probChange_point = ggplot(data = merged_changeRate,
                                        mapping = aes(x = pop_2020,
                                                      y = prob_risk_changed,
@@ -168,9 +168,9 @@ fig_pop_2020_probChange_point = ggplot(data = merged_changeRate,
                 se = FALSE,
                 formula = y~x,
                 color = "black") +
-    labs(title="\n \n County population Vs probability of change in community risk level",
+    labs(title="\n \n County population Vs rate of change in community risk level",
          x = "county Population",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification",
                        values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
@@ -187,7 +187,7 @@ ggsave("Result/Figures/fig_pop_2020_probChange_point.jpg",
 
 
 
-# county population and probability of change for each category
+# county population and rate of change for each category
 fig_pop_2020_probChange_point_facet = ggplot(data = merged_changeRate,
                                              mapping = aes(x = pop_2020,
                                                            y = prob_risk_changed,
@@ -197,9 +197,9 @@ fig_pop_2020_probChange_point_facet = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \n County population Vs probability of change in community risk level",
+    labs(title="\n \n County population Vs rate of change in community risk level",
          x = "County Population",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification") + 
     stat_cor(method = "pearson") +
@@ -219,7 +219,7 @@ ggsave("Result/Figures/fig_pop_2020_probChange_point_facet.jpg",
 
 
 
-# Log county population and probability of change
+# Log county population and rate of change
 fig_pop_2020_probChange_point_log = ggplot(data = merged_changeRate,
                                        mapping = aes(x = log(pop_2020),
                                                      y = prob_risk_changed,
@@ -230,9 +230,9 @@ fig_pop_2020_probChange_point_log = ggplot(data = merged_changeRate,
                se = FALSE,
                formula = y~x,
                color = "black") +
-    labs(title="\n \n Log of county population Vs probability of change in community risk level",
+    labs(title="\n \n Log of county population Vs rate of change in community risk level",
          x = "log of Population",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification",
                        values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
@@ -249,7 +249,7 @@ ggsave("Result/Figures/fig_pop_2020_probChange_point_log.jpg",
 
 
 
-# Log county population and probability of change for each category
+# Log county population and rate of change for each category
 fig_pop_2020_probChange_point_facet_log = ggplot(data = merged_changeRate,
                                              mapping = aes(x = log(pop_2020),
                                                            y = prob_risk_changed,
@@ -259,9 +259,9 @@ fig_pop_2020_probChange_point_facet_log = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \n Log of county population Vs probability of change in community risk level",
+    labs(title="\n \n Log of county population Vs rate of change in community risk level",
          x = "log of Population",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification") + 
     stat_cor(method = "pearson") +
@@ -279,7 +279,7 @@ ggsave("Result/Figures/fig_pop_2020_probChange_point_facet_log.jpg",
 
 
 
-# Number of hospital in each county VS probability of change
+# Number of hospital in each county VS rate of change
 fig_hospitalNum_max_probChange_point = ggplot(data = merged_changeRate,
                                          mapping = aes(x = hospitalNum_max,
                                                        y = prob_risk_changed,
@@ -289,9 +289,9 @@ fig_hospitalNum_max_probChange_point = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \n The number of reported hospital Vs probability of change in community risk level",
+    labs(title="\n \n The number of reported hospital Vs rate of change in community risk level",
          x = "Number of hospital",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification",
                                   values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
@@ -310,7 +310,7 @@ ggsave("Result/Figures/fig_hospitalNum_max_probChange_point.jpg",
 
 
 
-# Log number of hospital in each county VS probability of change
+# Log number of hospital in each county VS rate of change
 fig_hospitalNum_max_probChange_point_log = ggplot(data = merged_changeRate,
                                               mapping = aes(x = log(hospitalNum_max),
                                                             y = prob_risk_changed,
@@ -320,9 +320,9 @@ fig_hospitalNum_max_probChange_point_log = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \n The log number of reported hospital Vs probability of change in community risk level",
+    labs(title="\n \n The log number of reported hospital Vs rate of change in community risk level",
          x = "Log Number of hospital",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification",
                        values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
@@ -342,7 +342,7 @@ ggsave("Result/Figures/fig_hospitalNum_max_probChange_point_log.jpg",
 
 
 
-# Number of hospital per 100000 in each county VS probability of change
+# Number of hospital per 100000 in each county VS rate of change
 fig_hos_per100_probChange_point = ggplot(data = merged_changeRate,
                                        mapping = aes(x = hos_per100,
                                                      y = prob_risk_changed,
@@ -352,9 +352,9 @@ fig_hos_per100_probChange_point = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \n The number of reported hospital Vs probability of change in community risk level",
+    labs(title="\n \n The number of reported hospital Vs rate of change in community risk level",
          x = "Number of hospital per 100000",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification") + 
     stat_cor(method = "pearson")
@@ -369,7 +369,7 @@ ggsave("Result/Figures/fig_hos_per100_probChange_point.jpg",
 
 
 
-# Log2 Number of hospital per 100000 in each county VS probability of change
+# Log2 Number of hospital per 100000 in each county VS rate of change
 fig_hos_per100_probChange_point_log = ggplot(data = merged_changeRate,
                                              mapping = aes(x = log2(hos_per100),
                                                            y = prob_risk_changed,
@@ -379,9 +379,9 @@ fig_hos_per100_probChange_point_log = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \n Log2 The number of reported hospital Vs probability of change in community risk level",
+    labs(title="\n \n Log2 The number of reported hospital Vs rate of change in community risk level",
          x = "Log2 Number of hospital per 100000",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification",
                                  values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
@@ -399,7 +399,7 @@ ggsave("Result/Figures/fig_hos_per100_probChange_point_log.jpg",
 
 
 
-# Log2 Number of hospital per 100000 in each county VS probability of change facet
+# Log2 Number of hospital per 100000 in each county VS rate of change facet
 fig_hos_per100_probChange_point_log_facet = ggplot(data = merged_changeRate,
                                              mapping = aes(x = log2(hos_per100),
                                                            y = prob_risk_changed,
@@ -409,9 +409,9 @@ fig_hos_per100_probChange_point_log_facet = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \n Log2 The number of reported hospital Vs probability of change in community risk level",
+    labs(title="\n \n Log2 The number of reported hospital Vs rate of change in community risk level",
          x = "Log2 Number of hospital per 100000",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification",
                        values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
@@ -553,8 +553,8 @@ fig_NCHS_probChange_density = ggplot(data = merged_changeRate,
                                                      fill = UR_category)) +
     geom_density(alpha=0.3)+
     #geom_smooth(method = "loess") +
-    labs(title="\n \n Probability of change density in different NCHS Urban-Rural Category",
-         x = "Probability of Change") +
+    labs(title="\n \n rate of change density in different NCHS Urban-Rural Category",
+         x = "rate of Change") +
     theme_bw()+
     scale_fill_manual(name = "NCHS Urban-Rural Classification",
                        values = rev(c('#f0f9e8','#ccebc5','#a8ddb5','#7bccc4','#43a2ca','#0868ac')))
@@ -575,8 +575,8 @@ fig_NCHS_probChange_box = ggplot(data = merged_changeRate,
                                                fill = UR_category)) +
     geom_boxplot(alpha = .7)+
     #geom_smooth(method = "loess") +
-    labs(title="\n \n Probability of change in different NCHS Urban-Rural Category",
-         y = "Probability of Change") +
+    labs(title="\n \n rate of change in different NCHS Urban-Rural Category",
+         y = "rate of Change") +
     theme_bw()+
     # geom_jitter(width = .03,
     #             alpha = .2,
@@ -600,7 +600,7 @@ ggsave("Result/Figures/fig_NCHS_probChange_box.jpg",
 
 
 
-# Rural percent and probability of change
+# Rural percent and rate of change
 fig_POPPCT_RURAL_probChange_point = ggplot(data = merged_changeRate,
                                        mapping = aes(x = POPPCT_RURAL,
                                                      y = prob_risk_changed,
@@ -610,9 +610,9 @@ fig_POPPCT_RURAL_probChange_point = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 formula = y ~ x,
                 color = "black") +
-    labs(title="\n \n Rural population percentage Vs probability of change in community risk level",
+    labs(title="\n \n Rural population percentage Vs rate of change in community risk level",
          x = "Rural population percentage",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw()+
     scale_color_manual(name = "NCHS Urban-Rural Classification",
                        values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
@@ -631,16 +631,16 @@ ggsave("Result/Figures/fig_POPPCT_RURAL_probChange_point.jpg",
 
 
 
-# Rural percent and probability of change
+# Rural percent and rate of change
 fig_POPPCT_RURAL_probChange_point_facet = ggplot(data = merged_changeRate,
                                            mapping = aes(x = POPPCT_RURAL,
                                                          y = prob_risk_changed)) +
     geom_point(alpha = .5) +
     geom_smooth(method = "lm",
                 formula = y ~ x) +
-    labs(title="\n \n Rural population percentage Vs probability of change in community risk level for each NCHS Urban-Rural group",
+    labs(title="\n \n Rural population percentage Vs rate of change in community risk level for each NCHS Urban-Rural group",
          x = "Rural population percentage",
-         y = "Probability of Change") +
+         y = "rate of Change") +
     theme_bw()+
     scale_color_manual(name = "NCHS Urban-Rural Classification") + 
     stat_cor(method = "pearson") +
