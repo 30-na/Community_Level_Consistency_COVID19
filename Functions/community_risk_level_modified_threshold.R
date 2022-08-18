@@ -112,7 +112,7 @@ community_level_MH_MT = community_level_county %>%
 
 #save the file
 save(community_level_MH_MT,
-     file="Result/CDC_community_level_county_computed_merged_high_medium_threshold.RDA")
+     file="Result/CDC_community_level_county_computed_merged_high_medium_modified_threshold.RDA")
 
 ###################### modified_threshold LOW amd MEDIUM MERGED ###################
 community_level_county$community_level = NA
