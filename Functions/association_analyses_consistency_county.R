@@ -379,7 +379,7 @@ fig_hos_per100_probChange_point_log = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \n Log2 The number of reported hospital Vs rate of change in community risk level",
+    labs(title="\n \n Log2 The number of reported hospital per 100000 Vs rate of change in community risk level",
          x = "Log2 Number of hospital per 100000",
          y = "rate of Change") +
     theme_bw() +
@@ -761,3 +761,117 @@ ggsave("Result/Figures/fig_category_population_ratio_box.jpg",
 
 
 
+## merge plots in the a one plot
+# A Rural percent and rate of change
+fig_POPPCT_RURAL_probChange_point = ggplot(data = merged_changeRate,
+                                           mapping = aes(x = POPPCT_RURAL,
+                                                         y = prob_risk_changed,
+                                                         color = UR_category,
+                                                         group = FALSE)) +
+    geom_point() +
+    geom_smooth(method = "lm",
+                formula = y ~ x,
+                color = "black") +
+    labs(title="\n \nA) Rural population percentage Vs rate of change in community risk level",
+         x = "Rural population percentage",
+         y = "rate of Change") +
+    theme_bw()+
+    scale_color_manual(name = "NCHS Urban-Rural Classification",
+                       values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
+                                      '#7bccc4','#43a2ca','#0868ac'))) + 
+    stat_cor(method = "pearson")
+
+
+
+fig_POPPCT_RURAL_probChange_point = ggMarginal(fig_POPPCT_RURAL_probChange_point,
+                                               type = "histogram")
+
+
+
+
+
+# B Log county population and rate of change
+fig_pop_2020_probChange_point_log = ggplot(data = merged_changeRate,
+                                           mapping = aes(x = log(pop_2020),
+                                                         y = prob_risk_changed,
+                                                         color = UR_category,
+                                                         group = FALSE)) +
+    geom_point() +
+    geom_smooth(method = "lm",
+                se = FALSE,
+                formula = y~x,
+                color = "black") +
+    labs(title="\n \nB) Log of county population Vs rate of change in community risk level",
+         x = "log of Population",
+         y = "rate of Change") +
+    theme_bw() +
+    scale_color_manual(name = "NCHS Urban-Rural Classification",
+                       values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
+                                      '#7bccc4','#43a2ca','#0868ac'))) + 
+    stat_cor(method = "pearson")
+
+fig_pop_2020_probChange_point_log = ggMarginal(fig_pop_2020_probChange_point_log,
+                                               type = "histogram")
+
+
+
+# C Log2 Number of hospital per 100000 in each county VS rate of change
+fig_hos_per100_probChange_point_log = ggplot(data = merged_changeRate,
+                                             mapping = aes(x = log2(hos_per100),
+                                                           y = prob_risk_changed,
+                                                           color = UR_category,
+                                                           group = FALSE)) +
+    geom_point() +
+    geom_smooth(method = "lm",
+                se = FALSE,
+                formula = y~x) +
+    labs(title="\n \nC) Log2 The number of reported hospital per 100000 Vs rate of change in community risk level",
+         x = "Log2 Number of hospital per 100000",
+         y = "rate of Change") +
+    theme_bw() +
+    scale_color_manual(name = "NCHS Urban-Rural Classification",
+                       values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
+                                      '#7bccc4','#43a2ca','#0868ac'))) +
+    stat_cor(method = "pearson")
+
+fig_hos_per100_probChange_point_log = ggMarginal(fig_hos_per100_probChange_point_log,
+                                                 type = "histogram")
+
+
+# D  Log number of hospital in each county VS rate of change
+fig_hospitalNum_max_probChange_point_log = ggplot(data = merged_changeRate,
+                                                  mapping = aes(x = log(hospitalNum_max),
+                                                                y = prob_risk_changed,
+                                                                color = UR_category,
+                                                                group = FALSE)) +
+    geom_point() +
+    geom_smooth(method = "lm",
+                se = FALSE,
+                formula = y~x) +
+    labs(title="\n \nD) The log number of reported hospital Vs rate of change in community risk level",
+         x = "Log Number of hospital",
+         y = "rate of Change") +
+    theme_bw() +
+    scale_color_manual(name = "NCHS Urban-Rural Classification",
+                       values = rev(c('#f0f9e8','#ccebc5','#a8ddb5',
+                                      '#7bccc4','#43a2ca','#0868ac'))) + 
+    stat_cor(method = "pearson")
+
+fig_hospitalNum_max_probChange_point_log = ggMarginal(fig_hospitalNum_max_probChange_point_log,
+                                                      type = "histogram")
+
+
+
+fig_combine = grid.arrange(fig_POPPCT_RURAL_probChange_point,
+                           fig_pop_2020_probChange_point_log,
+                           fig_hos_per100_probChange_point_log,
+                           fig_hospitalNum_max_probChange_point_log,
+                           ncol = 10,
+                           nrow = 4,
+                           layout_matrix = rbind(c(rep(1,10)),
+                                                            c(rep(2,10)),
+                                                            c(rep(3,10)),
+                                                            c(rep(4,10))))
+ggsave("Result/Figures/fig_combine.jpg",
+       fig_combine, 
+       height=10,width=8,scale=1.65)
