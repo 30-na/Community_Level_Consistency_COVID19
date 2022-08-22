@@ -825,8 +825,8 @@ fig_hos_per100_probChange_point_log = ggplot(data = merged_changeRate,
     geom_smooth(method = "lm",
                 se = FALSE,
                 formula = y~x) +
-    labs(title="\n \nC) Log2 The number of reported hospital per 100000 Vs rate of change in community risk level",
-         x = "Log2 Number of hospital per 100000",
+    labs(title="\n \nC) Log2 The number of reported hospital per 100000 persons Vs rate of change in community risk level",
+         x = "Log2 Number of hospital per 100000 persons",
          y = "rate of Change") +
     theme_bw() +
     scale_color_manual(name = "NCHS Urban-Rural Classification",

@@ -30,8 +30,15 @@ bed_occupied = Hospital_file %>%
            adult_hos_7day = previous_day_admission_adult_covid_confirmed_7_day_sum,
            pediatric_hos_7day = previous_day_admission_pediatric_covid_confirmed_7_day_sum)
 
+hospital_suppressed = bed_occupied %>%
+    mutate(is_suppressed = ifelse(total_beds < 0 |
+                                      used_beds_covid < 0 |
+                                      adult_hos_7day < 0 |
+                                      pediatric_hos_7day < 0, 1, 0))
 
 
+#save the output
+save(hospital_suppressed, file="Result/hospital_suppressed.RDA")
 
 hospital_id = Hospital_file %>%
     select(collection_week,
