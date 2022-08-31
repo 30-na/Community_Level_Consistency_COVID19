@@ -3,7 +3,7 @@ library(ggplot2)
 library(tidyr)
 library(usdata)
 library(readxl)
-
+library(gridExtra)
 
 
 # LOW MEDIUM HIGH 
@@ -106,7 +106,7 @@ fig_consis_NHCS_3week_line_LMH_MT_b5 = ggplot(data = consis_3week_LMH_MT_b5,
                 se=FALSE,
                 size = 1.5)+
     geom_point(alpha = .3)+
-    labs(title = "A) 3-week community risk level consistency rates with alternative \nthreshold for low risk level",
+    labs(title = "A) 3-week community risk level consistency rates with alternative \nthreshold for low risk level (only bed occupancy)",
          x = NULL,
          y = "Consistency Rate")+
     guides(fill=guide_legend(title="Community Level"))+
