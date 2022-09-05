@@ -115,22 +115,22 @@ fig_consis_3week_box_LMH_MT_b5 = ggplot(data = consis_3week_LMH_MT_b5,
     theme(text = element_text(size = 14),
           axis.ticks.x = element_blank(),
           axis.text.x = element_blank()) +
-    labs(title = "B) Distributions of 3-week \ncommunity risk level \nconsistency rates with alternative \nthreshold for low risk level",
-         y = "Consistency Rate",x = NULL) +
+    labs(title = NULL,
+         y = "Consistency Rate",x = "alternative 1") +
     guides(fill=guide_legend(title="Community Level"))+
     scale_y_continuous(limits=c(0,1),
                        breaks=c(0, .25, .50, 0.75, 1),
                        expand = c(0, 0))+
-    scale_x_discrete()+
-    stat_summary(fun=mean,
-                 colour="black",
-                 geom="point", 
-                 shape=18,
-                 size=3,
-                 show.legend=FALSE) + 
-    geom_text(data = means,
-              aes(label = consisRate,
-                  y = consisRate + 0.08))
+    scale_x_discrete()
+    # stat_summary(fun=mean,
+    #              colour="black",
+    #              geom="point", 
+    #              shape=18,
+    #              size=3,
+    #              show.legend=FALSE) + 
+    # geom_text(data = means,
+    #           aes(label = consisRate,
+    #               y = consisRate + 0.08))
 
 
 
