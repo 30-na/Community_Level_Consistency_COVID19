@@ -55,3 +55,49 @@ ggsave("Result/Figures/fig_merge.jpg",
        fig_merge, 
        height=4,width=7,scale=1.65)
 
+
+
+
+
+
+fig3 = grid.arrange(fig_consis_3week_box_LMH,
+                    fig_consis_3week_box_LMH_MT_b5,
+                    nrow = 1, 
+                    ncol = 2,
+                    top = textGrob("A) Distributions of 3-week community risk level consistency rates\n",
+                                   gp = gpar(fontsize = 18),
+                                   x = 0,
+                                   hjust = 0))
+
+ggsave("Result/Figures/fig3.jpg",
+       fig3, 
+       height=2,width=7,scale=1.65)
+
+
+
+#fig 4
+fig4 = grid.arrange(fig_consis_3week_box_LMH_suppNA,
+                    fig_consis_3week_box_LMH_MT_suppNA_b5,
+                    nrow = 1, 
+                    ncol = 2,
+                    top = textGrob("B) Distributions of 3-week community risk level consistency rates (without suppressed hospital data)\n",
+                                   gp = gpar(fontsize = 18),
+                                   x = 0,
+                                   hjust = 0))
+
+ggsave("Result/Figures/fig4.jpg",
+       fig4, 
+       height=2,width=7,scale=1.65)
+
+
+
+fig_merge1 = grid.arrange(fig3,
+                         fig4,
+                         nrow = 2, 
+                         ncol = 1)
+
+ggsave("Result/Figures/fig_merge1.jpg",
+       fig_merge1, 
+       height=4,width=7,scale=1.65)
+
+
